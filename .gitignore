@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+build/*
 
 # Precompiled Headers
 *.gch
@@ -26,3 +27,9 @@
 *.exe
 *.out
 *.app
+*.3dsx
+*.elf
+
+# Icon images
+*.smdh
+icon-*.png
