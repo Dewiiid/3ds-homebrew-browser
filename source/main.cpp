@@ -10,6 +10,22 @@
 
 #include <3ds.h>
 
+#include "category_emulators_normal_bin.h"
+#include "category_emulators_selected_bin.h"
+#include "category_games_normal_bin.h"
+#include "category_games_selected_bin.h"
+#include "category_media_normal_bin.h"
+#include "category_media_selected_bin.h"
+#include "category_misc_normal_bin.h"
+#include "category_misc_selected_bin.h"
+#include "category_tools_normal_bin.h"
+#include "category_tools_selected_bin.h"
+#include "row_base_bin.h"
+#include "scrollbar_bin.h"
+#include "sort_normal_bin.h"
+#include "sort_reversed_bin.h"
+#include "ui_bar_bin.h"
+
 using std::string;
 using std::tuple;
 
@@ -195,6 +211,36 @@ u32 write_file(const char *path, const char *filename, void *data, u32 byte_coun
   return bytes_written;
 }
 
+void blit_column(u8 const* source, u8* dest, u32 pixel_count) {
+  memcpy(dest, source, 3 * pixel_count);
+}
+
+void blit(u8 const* source, u8* dest, u32 rows, u32 columns) {
+  for (u32 i = 0; i < columns; ++i) {
+    blit_column(source + 3 * rows * i, dest + 3 * 240 * i, rows);
+  }
+}
+
+void blit_sprite(u8 const* source, u8* dest) {
+  u32 width = *reinterpret_cast<u32 const*>(source);
+  u32 height = *reinterpret_cast<u32 const*>(source + 4);
+  blit(source + 8, dest, height, width);
+}
+
+void draw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y) {
+  u32 height = *reinterpret_cast<u32 const*>(source + 4);
+  // Convert from typical screen coordinates to framebuffer coordinates.
+  blit_sprite(source, framebuffer + 3 * (240 - y - height + x * 240));
+}
+
+void draw_solid_background(u8* framebuffer, u32 pixel_count, u8 r, u8 g, u8 b) {
+  for (u32 i = 0; i < pixel_count; ++i) {
+    framebuffer[3 * i + 0] = b;
+    framebuffer[3 * i + 1] = g;
+    framebuffer[3 * i + 2] = r;
+  }
+}
+
 int main()
 {
   // Initialize services
@@ -237,24 +283,6 @@ int main()
     write_file(directory.c_str(), filename.c_str(), &file_contents[0], file_contents.size());
   }
 
-  // char *absolute_path = strtok((char*)file_listing, "\n");
-  // while (absolute_path) {
-  //   strcpy(url_buffer, SERVER.c_str());
-  //   strcat(url_buffer, absolute_path);
-  //   u8 *file_contents = NULL;
-  //   http_get(url_buffer, &file_contents, &bytes_received);
-
-  //   char *last_directory_separator = strrchr(absolute_path, '/');
-  //   char directory[256] = {};
-  //   strncpy(directory, absolute_path, last_directory_separator - absolute_path + 1);
-  //   char *filename = last_directory_separator + 1;
-  //   write_file(directory, filename, file_contents, bytes_received);
-
-  //   free(file_contents);
-  //   absolute_path = strtok(NULL, "\n");
-  // }
-  // free(file_listing);
-
   setup_frame_buffer(0x40);
 
   // Main loop
@@ -271,11 +299,33 @@ int main()
 
     // Example rendering code that displays a white pixel
     // Please note that the 3DS screens are sideways (thus 240x400 and 240x320)
-    // u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
-    // memset(fb, 0, 240*400*3);
-    // fb[3*(10+10*240)] = 0xFF;
-    // fb[3*(10+10*240)+1] = 0xFF;
-    // fb[3*(10+10*240)+2] = 0xFF;
+    // u8 image[]{
+    //   0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00,
+    //   0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF
+    // };
+    u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+    // memset(fb, 0, 240*320*3);
+    draw_solid_background(fb, 240 * 320, 216, 201, 201);
+    // blit_column(image, fb + 3 * (50 + 10 * 240), 4);
+    // blit(image, fb + 3 * (50 + 10 * 240), 2, 2);
+    // blit(category_games_normal_bin, fb + 3 * (50 + 10 * 240), 37, 43);
+    draw_sprite(category_games_normal_bin, fb, 4, 6);
+    draw_sprite(category_media_normal_bin, fb, 4, 48);
+    draw_sprite(category_emulators_normal_bin, fb, 4, 90);
+    draw_sprite(category_tools_normal_bin, fb, 4, 132);
+    draw_sprite(category_misc_normal_bin, fb, 4, 174);
+
+    draw_sprite(row_base_bin, fb, 51, 3);
+    draw_sprite(row_base_bin, fb, 51, 74);
+    draw_sprite(row_base_bin, fb, 51, 145);
+
+    draw_sprite(ui_bar_bin, fb, 0, 216);
+    draw_sprite(sort_reversed_bin, fb, 265, 217);
+
+    draw_sprite(scrollbar_bin, fb, 304, 3);
+    // fb[3*(50+10*240)] = 0xFF;
+    // fb[3*(50+10*240)+1] = 0xFF;
+    // fb[3*(50+10*240)+2] = 0xFF;
 
     // Flush and swap framebuffers
     gfxFlushBuffers();
