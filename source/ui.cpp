@@ -50,7 +50,7 @@ struct UIElement {
   ELEMENT(kMiddleRowDark, row_selected_bin, 51, 74) \
   ELEMENT(kBottomRowDark, row_selected_bin, 51, 145) \
   ELEMENT(kUIBar, ui_bar_bin, 0, 216) \
-  ELEMENT(kSortReversed, sort_reversed_bin, 2654, 217) \
+  ELEMENT(kSortReversed, sort_reversed_bin, 265, 217) \
   ELEMENT(kScrollBar, scrollbar_bin, 304, 3)
 
 enum class ListingUIElements {
@@ -91,7 +91,6 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
     }
 
     draw_ui_element(fb, ListingUIElements::kUIBar);
-    // This isn't working as expected. Look into this.
     if (state.sort_order == ListingSortOrder::kAlphanumericDescending) {
       draw_ui_element(fb, ListingUIElements::kSortReversed);
     }
