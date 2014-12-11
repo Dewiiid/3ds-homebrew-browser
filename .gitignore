@@ -33,3 +33,4 @@ build/*
 # Icon images
 *.smdh
 icon-*.png
+*.db
