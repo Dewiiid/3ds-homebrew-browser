@@ -68,6 +68,20 @@ ListingScrollbar get_scrollbar_draw_state(TitleListCursor const& cursor) {
     };
 }
 
+Result download_app(std::string const& server, std::string const& title) {
+  Result error{0};
+  std::vector<std::string> title_file_listing;
+  std::tie(error, title_file_listing) =
+      get_file_listing_for_title(server, title);
+
+  for (auto const& absolute_path : title_file_listing) {
+    std::vector<u8> file_contents;
+    std::tie(error, file_contents) = http_get(server + absolute_path);
+    write_file(absolute_path, &file_contents[0], file_contents.size());
+  }
+  return error;
+}
+
 int main()
 {
   // Initialize services
@@ -83,22 +97,16 @@ int main()
 
   string const kServer = "http://192.168.0.3:1337";
 
+  /*
   Result error{0};
   TitleList homebrew_listing;
   std::tie(error, homebrew_listing) = get_homebrew_listing(kServer);
-
-  auto const& first_listing = homebrew_listing[0];
-
-  std::vector<std::string> title_file_listing;
-  std::tie(error, title_file_listing) = get_file_listing_for_title(kServer, first_listing);
-
-  for (auto const& absolute_path : title_file_listing) {
-    std::vector<u8> file_contents;
-    std::tie(error, file_contents) = http_get(kServer + absolute_path);
-    write_file(absolute_path, &file_contents[0], file_contents.size());
-  }
-
-  TitleList fake_listing{"hello", "hi", "sup", "I don't hate you", "qrrbrrbrbl"};
+  /*/
+  TitleList homebrew_listing{
+    "homebrew-browser", "homebrew-browser", "homebrew-browser",
+    "homebrew-browser", "homebrew-browser"
+  };
+  //*/
 
   u32 selected_index = 0;
   // Main loop
@@ -110,14 +118,24 @@ int main()
     // Your code goes here
 
     u32 kDown = hidKeysDown();
-    if (kDown & KEY_START)
-      break; // break in order to return to hbmenu
+    if (kDown & KEY_START) {
+        break;  // Break in order to return to Homebrew Launcher.
+    }
+    if (kDown & KEY_UP) {
+      selected_index = selected_index ? selected_index - 1 : 0;
+    }
+    if (kDown & KEY_DOWN) {
+      selected_index = selected_index < homebrew_listing.size() - 1 ? selected_index + 1 : homebrew_listing.size() - 1;
+    }
+    if (kDown & KEY_A) {
+      download_app(kServer, homebrew_listing[selected_index]);
+    }
 
     draw_full_ui_from_state(ListingDrawState{
       SelectedCategory::kEmulators,
-      get_title_list_draw_state(get_title_list_cursor(fake_listing, selected_index)),
+      get_title_list_draw_state(get_title_list_cursor(homebrew_listing, selected_index)),
       selected_index % 3,
-      get_scrollbar_draw_state(get_title_list_cursor(fake_listing, selected_index)),
+      get_scrollbar_draw_state(get_title_list_cursor(homebrew_listing, selected_index)),
       ListingSortOrder::kAlphanumericDescending
     });
 
