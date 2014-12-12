@@ -83,14 +83,17 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
 
     if (state.visible_titles[0].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 0 ? ListingUIElements::kTopRowDark : ListingUIElements::kTopRowLight);
+      draw_raw_sprite(state.visible_titles[0].icon, fb, 61, 13, 48, 48);
       putnchar(fb, 123, 9, title_font, state.visible_titles[0].title.c_str(), state.visible_titles[0].title.size());
     }
     if (state.visible_titles[1].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 1 ? ListingUIElements::kMiddleRowDark : ListingUIElements::kMiddleRowLight);
+      draw_raw_sprite(state.visible_titles[1].icon, fb, 61, 84, 48, 48);
       putnchar(fb, 123, 80, title_font, state.visible_titles[1].title.c_str(), state.visible_titles[1].title.size());
     }
     if (state.visible_titles[2].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 2 ? ListingUIElements::kBottomRowDark : ListingUIElements::kBottomRowLight);
+      draw_raw_sprite(state.visible_titles[2].icon, fb, 61, 155, 48, 48);
       putnchar(fb, 123, 151, title_font, state.visible_titles[2].title.c_str(), state.visible_titles[2].title.size());
     }
 

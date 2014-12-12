@@ -36,6 +36,10 @@ void draw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y) {
   blit_sprite(source, framebuffer + 3 * (240 - y - height + x * 240));
 }
 
+void draw_raw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y, u32 width, u32 height) {
+  blit(source, framebuffer + 3 * (240 - y - height + x * 240), height, width);
+}
+
 void draw_sprite_from_atlas(u8 const* const source, u8* framebuffer,
     s32 screen_x, s32 screen_y, u32 atlas_x, u32 atlas_y, u32 width,
     u32 height) {

@@ -3,7 +3,10 @@
 
 #include <3ds.h>
 
+// Draws a sprite that has leading metadata.
 void draw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y);
+// Draws a sprite that is just the image data.
+void draw_raw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y, u32 width, u32 height);
 void draw_solid_background(u8* framebuffer, u32 pixel_count, u8 r, u8 g, u8 b);
 
 void draw_sprite_from_atlas(u8 const* const source, u8* framebuffer,
