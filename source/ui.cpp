@@ -5,6 +5,7 @@
 #include <3ds.h>
 
 #include "drawing.h"
+#include "font.h"
 
 #include "category_emulators_normal_bin.h"
 #include "category_emulators_selected_bin.h"
@@ -82,12 +83,15 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
 
     if (state.visible_titles[0].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 0 ? ListingUIElements::kTopRowDark : ListingUIElements::kTopRowLight);
+      putnchar(fb, 123, 9, title_font, state.visible_titles[0].title.c_str(), state.visible_titles[0].title.size());
     }
     if (state.visible_titles[1].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 1 ? ListingUIElements::kMiddleRowDark : ListingUIElements::kMiddleRowLight);
+      putnchar(fb, 123, 80, title_font, state.visible_titles[1].title.c_str(), state.visible_titles[1].title.size());
     }
     if (state.visible_titles[2].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 2 ? ListingUIElements::kBottomRowDark : ListingUIElements::kBottomRowLight);
+      putnchar(fb, 123, 151, title_font, state.visible_titles[2].title.c_str(), state.visible_titles[2].title.size());
     }
 
     draw_ui_element(fb, ListingUIElements::kUIBar);
