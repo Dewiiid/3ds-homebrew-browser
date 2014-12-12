@@ -11,6 +11,7 @@
 #include <3ds.h>
 
 #include "drawing.h"
+#include "font.h"
 #include "http.h"
 #include "storage.h"
 #include "ui.h"
@@ -138,6 +139,9 @@ int main()
       get_scrollbar_draw_state(get_title_list_cursor(homebrew_listing, selected_index)),
       ListingSortOrder::kAlphanumericDescending
     });
+
+    u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+    putchar(fb, 20, 17, title_font, '@');
 
     // Flush and swap framebuffers
     gfxFlushBuffers();
