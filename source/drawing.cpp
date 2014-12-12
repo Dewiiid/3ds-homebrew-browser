@@ -31,12 +31,13 @@ void blit_sprite(u8 const* source, u8* dest) {
 }
 
 void draw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y) {
+  u32 const width = get_image_width(source);
   u32 const height = get_image_height(source);
-  // Convert from typical screen coordinates to framebuffer coordinates.
-  blit_sprite(source, framebuffer + 3 * (240 - y - height + x * 240));
+  draw_raw_sprite(source + kImageHeaderSizeBytes, framebuffer, x, y, width, height);
 }
 
 void draw_raw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y, u32 width, u32 height) {
+  // Convert from typical screen coordinates to framebuffer coordinates.
   blit(source, framebuffer + 3 * (240 - y - height + x * 240), height, width);
 }
 
