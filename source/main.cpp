@@ -142,6 +142,8 @@ int main()
 
     u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
     putchar(fb, 20, 17, title_font, '@');
+    std::string const greeting{"Hello, world!"};
+    putnchar(fb, 123, 9, title_font, greeting.c_str(), greeting.size());
 
     // Flush and swap framebuffers
     gfxFlushBuffers();
