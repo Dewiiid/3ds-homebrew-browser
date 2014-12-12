@@ -2,9 +2,9 @@
 
 #include "drawing.h"
 
-#include "ubuntu_condensed_16px_0_bin.h"
+#include "ubuntu_condensed_16px_bin.h"
 
-Font const title_font{ubuntu_condensed_desc, ubuntu_condensed_16px_0_bin};
+Font const title_font{ubuntu_condensed_desc, ubuntu_condensed_16px_bin};
 
 void putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const c) {
