@@ -33,6 +33,8 @@ DATA		:=	data
 INCLUDES	:=	include
 
 APP_TITLE := Homebrew Browser
+APP_DESCRIPTION := Download homebrew from the internet!
+APP_AUTHOR := cromo - zeta0134
 
 #---------------------------------------------------------------------------------
 # options for code generation
