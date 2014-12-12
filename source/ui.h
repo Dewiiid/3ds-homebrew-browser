@@ -22,7 +22,7 @@ enum class ListingTitleDisplay {
 
 struct ListingMetadata {
   ListingTitleDisplay displayed;
-  u8* icon;
+  u8 const* icon;
   std::string title;
   std::string description;
 };
