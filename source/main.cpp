@@ -108,16 +108,19 @@ ListingScrollbar get_scrollbar_draw_state(TitleListCursor const& cursor) {
 }
 
 Result download_app(std::string const& server, std::string const& title) {
+  debug_message("Downloading " + title + " from " + server + "...", true);
   Result error{0};
   std::vector<std::string> title_file_listing;
   std::tie(error, title_file_listing) =
       get_file_listing_for_title(server, title);
 
   for (auto const& absolute_path : title_file_listing) {
+    debug_message("Downloading file: " + absolute_path, true);
     std::vector<u8> file_contents;
     std::tie(error, file_contents) = http_get(server + absolute_path);
     write_file(absolute_path, &file_contents[0], file_contents.size());
   }
+  debug_message("Finished.");
   return error;
 }
 
