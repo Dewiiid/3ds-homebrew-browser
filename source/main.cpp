@@ -18,6 +18,19 @@
 #include "storage.h"
 #include "ui.h"
 #include "util.h"
+#include "debug.h"
+
+//TODO: Put this somewhere else.
+void debug_color(u8 r, u8 g, u8 b, int delay_frames = 30) {
+  for (int i = 0; i < delay_frames; ++i)
+  {
+    u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+    draw_solid_background(fb, 240 * 320, r, g, b);
+    gfxFlushBuffers();
+    gfxSwapBuffers();
+    gspWaitForVBlank();
+  }
+}
 
 using std::string;
 using std::tuple;
@@ -156,16 +169,14 @@ void download_smdh_for_page(std::string const& server,
     // This assumes that there is always an icon. This wont always be the case,
     // so this needs to be adjusted to place a default icon in the slot and
     // empty out the strings on a failed download.
-    download_smdh(server, *visible_title, *app_info);
+    Result error = download_smdh(server, *visible_title, *app_info);
+    if (error) {
+      debug_message("SMDH Download ERR: " + string_from<int>(error));
+    }
   }
   // });
 
-  u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
-  draw_solid_background(fb, 240 * 320, 255, 0, 0);
-  for (int i = 0; i < 60; ++i)
-  {
-    gspWaitForVBlank();
-  }
+  debug_color(255,255,0);
 }
 
 std::array<AppInfo, 3> app_info_for_current_page{{
@@ -187,9 +198,15 @@ int main()
 
   initialize_storage();
 
-  string const kServer = "http://192.168.0.3:1337";
+  debug_message("Test!");
+  debug_message("Blargh!!!");
+  debug_message("Pineapples!");
+  
 
-  /*
+  //string const kServer = "http://192.168.0.3:1337";
+  string const kServer = "http://darknovagames.com:1337";
+
+  //*
   Result error{0};
   TitleList homebrew_listing;
   std::tie(error, homebrew_listing) = get_homebrew_listing(kServer);
@@ -201,6 +218,10 @@ int main()
   //*/
 
   u32 selected_index = 0;
+
+  //debug_color(255,0,0);
+  //download_app(kServer, "homebrew-browser");
+  debug_color(128,0,128);
 
   //*
   download_smdh_for_page(kServer, get_title_list_cursor(homebrew_listing,
@@ -243,6 +264,9 @@ int main()
       get_scrollbar_draw_state(get_title_list_cursor(homebrew_listing, selected_index)),
       ListingSortOrder::kAlphanumericDescending
     });
+
+    // Draw the debug output on the top screen
+    draw_debug_area();
 
     // Flush and swap framebuffers
     gfxFlushBuffers();

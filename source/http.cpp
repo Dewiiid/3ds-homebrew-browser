@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "util.h"
+#include "debug.h"
 
 using std::string;
 using std::tuple;
@@ -83,6 +84,8 @@ tuple<Result, std::vector<u8>> http_get(string const& url) {
   Result ret = httpcOpenContext(&context, const_cast<char*>(url.c_str()), 0);
   if (ret)
   {
+    debug_message("Failed to open context, err: " + string_from<int>(ret));
+    debug_message("Failing URL: " + url);
     return std::make_tuple(ret, std::vector<u8>{});
   }
 
@@ -91,6 +94,8 @@ tuple<Result, std::vector<u8>> http_get(string const& url) {
   httpcCloseContext(&context);
   if (ret)
   {
+    debug_message("Failed to download GET response, err: " + string_from<int>(ret));
+    debug_message("Failing URL: " + url);
     return std::make_tuple(ret, std::vector<u8>{});
   }
   return std::make_tuple(ret, buffer);
