@@ -88,6 +88,7 @@ tuple<Result, std::vector<u8>> http_get(string const& url) {
 
   std::vector<u8> buffer{};
   std::tie(ret, buffer) = http_download(context);
+  httpcCloseContext(&context);
   if (ret)
   {
     return std::make_tuple(ret, std::vector<u8>{});
