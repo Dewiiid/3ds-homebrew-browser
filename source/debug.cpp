@@ -39,11 +39,22 @@ void draw_debug_area() {
   g_debug_dirty -= 1;
 }
 
-void debug_message(string const& message) {
+void debug_message(string const& message, bool force_frame) {
   debug_lines.push_back(message);
   if (debug_lines.size() > kTopScreenHeight / kLineHeight) {
     debug_lines.pop_front();
   }
 
   g_debug_dirty = 2;
+
+  if (force_frame) {
+    gspWaitForVBlank();
+
+    // Draw the debug output on the top screen
+    draw_debug_area();
+
+    // Flush and swap framebuffers
+    gfxFlushBuffers();
+    gfxSwapBuffers();
+  }
 }
