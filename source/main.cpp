@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iso646.h>
+#include <malloc.h>
 
 #include <algorithm>
 #include <memory>
@@ -188,6 +189,11 @@ std::array<AppInfo, 3> app_info_for_current_page{{
   {new std::array<u8, 48 * 48 * 3>()}
 }};
 
+void initialize_sockets() {
+  u32 ret = SOC_Initialize((u32*)memalign(0x1000, 0x100000), 0x100000);
+  debug_message(string_from<unsigned int>(ret));
+}
+
 int main()
 {
   // Initialize services
@@ -200,6 +206,7 @@ int main()
   httpcInit();
 
   initialize_storage();
+  initialize_sockets();
 
   debug_message("Test!");
   debug_message("Blargh!!!");
@@ -277,6 +284,7 @@ int main()
   }
 
   // Exit services
+  SOC_Shutdown();
   httpcExit();
   fsExit();
   gfxExit();
