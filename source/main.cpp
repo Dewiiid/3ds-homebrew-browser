@@ -196,6 +196,8 @@ int main()
   initialize_storage();
   initialize_sockets();
 
+  consoleInit(GFX_TOP, nullptr);
+
   debug_message("Test!");
   debug_message("Blargh!!!");
   debug_message("Pineapples!");
@@ -262,9 +264,6 @@ int main()
       get_scrollbar_draw_state(get_title_list_cursor(homebrew_listing, selected_index)),
       ListingSortOrder::kAlphanumericDescending
     });
-
-    // Draw the debug output on the top screen
-    draw_debug_area();
 
     // Flush and swap framebuffers
     gfxFlushBuffers();
