@@ -1,4 +1,5 @@
 #include "debug.h"
+#include "drawing.h"
 
 #include <cstring>
 #include <deque>
@@ -56,5 +57,16 @@ void debug_message(string const& message, bool force_frame) {
     // Flush and swap framebuffers
     gfxFlushBuffers();
     gfxSwapBuffers();
+  }
+}
+
+void debug_color(u8 r, u8 g, u8 b, int delay_frames) {
+  for (int i = 0; i < delay_frames; ++i)
+  {
+    u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+    draw_solid_background(fb, 240 * 320, r, g, b);
+    gfxFlushBuffers();
+    gfxSwapBuffers();
+    gspWaitForVBlank();
   }
 }

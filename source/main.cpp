@@ -21,18 +21,6 @@
 #include "util.h"
 #include "debug.h"
 
-//TODO: Put this somewhere else.
-void debug_color(u8 r, u8 g, u8 b, int delay_frames = 30) {
-  for (int i = 0; i < delay_frames; ++i)
-  {
-    u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
-    draw_solid_background(fb, 240 * 320, r, g, b);
-    gfxFlushBuffers();
-    gfxSwapBuffers();
-    gspWaitForVBlank();
-  }
-}
-
 using std::string;
 using std::tuple;
 
