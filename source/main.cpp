@@ -204,7 +204,8 @@ int main()
   
 
   //string const kServer = "http://192.168.0.3:1337";
-  string const kServer = "http://darknovagames.com:1337";
+  //string const kServer = "http://darknovagames.com:1337";
+  string const kServer = "http://23.21.136.4:1337";
 
   //*
   Result error{0};
