@@ -78,7 +78,7 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
     draw_ui_element(fb, state.category == SelectedCategory::kGames ? ListingUIElements::kGamesLight : ListingUIElements::kGamesDark);
     draw_ui_element(fb, state.category == SelectedCategory::kMedia ? ListingUIElements::kMediaLight : ListingUIElements::kMediaDark);
     draw_ui_element(fb, state.category == SelectedCategory::kEmulators ? ListingUIElements::kEmulatorsLight : ListingUIElements::kEmulatorsDark);
-    draw_ui_element(fb, state.category == SelectedCategory::kUtility ? ListingUIElements::kToolsLight : ListingUIElements::kToolsDark);
+    draw_ui_element(fb, state.category == SelectedCategory::kTools ? ListingUIElements::kToolsLight : ListingUIElements::kToolsDark);
     draw_ui_element(fb, state.category == SelectedCategory::kMisc ? ListingUIElements::kMiscLight : ListingUIElements::kMiscDark);
 
     if (state.visible_titles[0].displayed == ListingTitleDisplay::kVisible) {

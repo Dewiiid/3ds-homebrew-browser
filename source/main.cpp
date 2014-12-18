@@ -167,8 +167,6 @@ void download_smdh_for_page(std::string const& server,
     }
   }
   // });
-
-  debug_color(255,255,0);
 }
 
 std::array<AppInfo, 3> app_info_for_current_page{{
@@ -211,18 +209,10 @@ int main()
   Result error{0};
   TitleList homebrew_listing;
   std::tie(error, homebrew_listing) = get_homebrew_listing(kServer);
-  /*/
-  TitleList homebrew_listing{
-    "homebrew-browser", "homebrew-browser", "homebrew-browser",
-    "homebrew-browser", "homebrew-browser"
-  };
-  //*/
 
   u32 selected_index = 0;
 
-  //debug_color(255,0,0);
-  //download_app(kServer, "homebrew-browser");
-  debug_color(128,0,128);
+  SelectedCategory selected_category = SelectedCategory::kNone;
 
   //*
   download_smdh_for_page(kServer, get_title_list_cursor(homebrew_listing,
@@ -252,6 +242,12 @@ int main()
     if (kDown & KEY_A) {
       download_app(kServer, homebrew_listing[selected_index]);
     }
+    if (kDown & KEY_L and selected_category > SelectedCategory::kNone) {
+      selected_category = static_cast<SelectedCategory>(static_cast<int>(selected_category) - 1);
+    }
+    if (kDown & KEY_R and selected_category < SelectedCategory::kMisc) {
+      selected_category = static_cast<SelectedCategory>(static_cast<int>(selected_category) + 1);
+    }
 
     if (old_selected_index / 3 != selected_index / 3) {
       download_smdh_for_page(kServer, get_title_list_cursor(homebrew_listing,
@@ -259,7 +255,7 @@ int main()
     }
 
     draw_full_ui_from_state(ListingDrawState{
-      SelectedCategory::kEmulators,
+      selected_category,
       get_title_list_draw_state(get_title_list_cursor(homebrew_listing, selected_index), app_info_for_current_page),
       selected_index % 3,
       get_scrollbar_draw_state(get_title_list_cursor(homebrew_listing, selected_index)),

@@ -11,7 +11,7 @@ enum class SelectedCategory {
   kGames,
   kMedia,
   kEmulators,
-  kUtility,
+  kTools,
   kMisc
 };
 
