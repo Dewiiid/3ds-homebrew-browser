@@ -92,6 +92,16 @@ std::map<string, string> parse_http_header(string raw_header) {
   if (raw_header.find("\r\n") != string::npos) {
     string status_code = raw_header.substr(0, raw_header.find("\r\n"));
     raw_header = raw_header.substr(status_code.size() + 2);
+    string protocol;
+    int response_code;
+    string response_name;
+    std::istringstream(status_code) >>
+        protocol >> response_code >> response_name;
+    if (response_code != 200) {
+      debug_message("Response " + string_from<int>(response_code) + ": "
+          + response_name);
+      return header_pairs;
+    }
   } else {
     debug_message("What is this noise?");
     return header_pairs;
