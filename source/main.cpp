@@ -9,6 +9,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <map>
 
 #include <3ds.h>
 
@@ -193,6 +194,22 @@ void initialize_sockets() {
   debug_message(string_from<unsigned int>(ret));
 }
 
+std::map<SelectedCategory, string> g_category_names {
+  {SelectedCategory::kGames, "games"},
+  {SelectedCategory::kMedia, "media"},
+  {SelectedCategory::kEmulators, "emulators"},
+  {SelectedCategory::kTools, "tools"},
+  {SelectedCategory::kMisc, "misc"}
+};
+
+
+std::tuple<Result, std::vector<std::string>> get_homebrew_listing(std::string const& server_url, SelectedCategory category) {
+  if (category == SelectedCategory::kNone) {
+    return download_and_split_on_newlines(server_url + "/homebrew_list");
+  } else {
+    return download_and_split_on_newlines(server_url + "/" + g_category_names[category] + "/homebrew_list");
+  }
+}
 
 void sort_homebrew_list(BrowserState& state) {
   std::sort(begin(state.homebrew_listing), end(state.homebrew_listing));

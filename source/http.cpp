@@ -206,22 +206,6 @@ std::tuple<Result, std::vector<std::string>> download_and_split_on_newlines(std:
   return std::make_tuple(error, lines);
 }
 
-std::map<SelectedCategory, string> g_category_names {
-  {SelectedCategory::kGames, "games"},
-  {SelectedCategory::kMedia, "media"},
-  {SelectedCategory::kEmulators, "emulators"},
-  {SelectedCategory::kTools, "tools"},
-  {SelectedCategory::kMisc, "misc"}
-};
-
-std::tuple<Result, std::vector<std::string>> get_homebrew_listing(std::string const& server_url, SelectedCategory category) {
-  if (category == SelectedCategory::kNone) {
-    return download_and_split_on_newlines(server_url + "/homebrew_list");
-  } else {
-    return download_and_split_on_newlines(server_url + "/" + g_category_names[category] + "/homebrew_list");
-  }
-}
-
 std::tuple<Result, std::vector<std::string>> get_file_listing_for_title(std::string const& server_url, std::string const& title) {
   return download_and_split_on_newlines(server_url + "/" + title + "/file_list");
 }
