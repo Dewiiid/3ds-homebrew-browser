@@ -59,7 +59,7 @@ struct BrowserState {
     {new std::array<u8, 48 * 48 * 3>()},
     {new std::array<u8, 48 * 48 * 3>()}
   }};
-  ListingSortOrder sort_order{ListingSortOrder::kAlphanumericDescending};
+  ListingSortOrder sort_order{ListingSortOrder::kAlphanumericAscending};
 };
 
 string const kServer = "http://23.21.136.4:1337";
