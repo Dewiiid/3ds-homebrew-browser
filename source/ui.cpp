@@ -51,7 +51,7 @@ struct UIElement {
   ELEMENT(kMiddleRowDark, row_selected_bin, 51, 74) \
   ELEMENT(kBottomRowDark, row_selected_bin, 51, 145) \
   ELEMENT(kUIBar, ui_bar_bin, 0, 216) \
-  ELEMENT(kSortReversed, sort_reversed_bin, 265, 217) \
+  ELEMENT(kSortReversed, sort_reversed_bin, 265, 218) \
   ELEMENT(kScrollBar, scrollbar_bin, 304, 3)
 
 enum class ListingUIElements {
