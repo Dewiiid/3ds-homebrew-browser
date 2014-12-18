@@ -193,12 +193,22 @@ void initialize_sockets() {
   debug_message(string_from<unsigned int>(ret));
 }
 
+
+void sort_homebrew_list(BrowserState& state) {
+  std::sort(begin(state.homebrew_listing), end(state.homebrew_listing));
+  if (state.sort_order == ListingSortOrder::kAlphanumericAscending) {
+    std::reverse(begin(state.homebrew_listing), end(state.homebrew_listing));
+  }
+  download_smdh_for_page(kServer, get_title_list_cursor(state.homebrew_listing,
+      state.selected_index), state.app_info_for_current_page);
+}
+
 void switch_to_category(SelectedCategory category, BrowserState& state) {
   Result error{0};
   std::tie(error, state.homebrew_listing) = get_homebrew_listing(kServer, category);
+  sort_homebrew_list(state);
   state.selected_index = 0;
-  download_smdh_for_page(kServer, get_title_list_cursor(state.homebrew_listing,
-      state.selected_index), state.app_info_for_current_page);
+  sort_homebrew_list(state);
 }
 
 int main()
@@ -261,6 +271,14 @@ int main()
       state.selected_category = static_cast<SelectedCategory>(
           static_cast<int>(state.selected_category) + 1);
       switch_to_category(state.selected_category, state);
+    }
+    if (kDown & KEY_SELECT) {
+      if (state.sort_order == ListingSortOrder::kAlphanumericAscending) {
+        state.sort_order = ListingSortOrder::kAlphanumericDescending;
+      } else {
+        state.sort_order = ListingSortOrder::kAlphanumericAscending;
+      }
+      sort_homebrew_list(state);
     }
 
     if (old_selected_index / 3 != state.selected_index / 3) {
