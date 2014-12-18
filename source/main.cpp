@@ -25,7 +25,16 @@
 using std::string;
 using std::tuple;
 
-using Title = std::string;
+struct Title {
+  string path;
+  string title_name;
+  string category_name;
+
+  bool operator<(const Title& other) {
+    return title_name < other.title_name;
+  }
+};
+
 using TitleList = std::vector<Title>;
 struct TitleListCursor {
   typename TitleList::const_iterator begin;
@@ -81,7 +90,7 @@ std::array<ListingMetadata, 3> get_title_list_draw_state(
   std::array<ListingMetadata, 3> visible_titles{{hidden, hidden, hidden}};
   std::transform(visible_titles_begin, visible_titles_end,
       begin(visible_titles), [](Title const& title) {
-    return ListingMetadata{ListingTitleDisplay::kVisible, nullptr, title, ""};
+    return ListingMetadata{ListingTitleDisplay::kVisible, nullptr, title.title_name, ""};
   });
 
   // Overlay any information we have from the app info for each title.
@@ -136,7 +145,7 @@ Result download_app(std::string const& server, std::string const& title) {
 Result download_smdh(std::string const& server, Title const& title, AppInfo& app_info) {
   Result error{0};
   std::vector<u8> smdh_byte_buffer;
-  std::tie(error, smdh_byte_buffer) = http_get(server + "/" + title + "/smdh");
+  std::tie(error, smdh_byte_buffer) = http_get(server + "/" + title.path + "/smdh");
   if (error) {
     return error;
   }
@@ -203,17 +212,28 @@ std::map<SelectedCategory, string> g_category_names {
 };
 
 
-std::tuple<Result, std::vector<std::string>> get_homebrew_listing(std::string const& server_url, SelectedCategory category) {
+std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url, SelectedCategory category) {
+  Result error;
+  std::vector<std::string> raw_listing;
   if (category == SelectedCategory::kNone) {
-    return download_and_split_on_newlines(server_url + "/homebrew_list");
+    std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/homebrew_list");
   } else {
-    return download_and_split_on_newlines(server_url + "/" + g_category_names[category] + "/homebrew_list");
+    std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/" + g_category_names[category] + "/homebrew_list");
   }
+  std::vector<Title> title_list;
+  for (auto path : raw_listing) {
+    title_list.push_back({
+      path,
+      path.substr(path.find("/") + 1),
+      path.substr(0, path.find("/"))
+    });
+  }
+  return std::make_tuple(error, title_list);
 }
 
 void sort_homebrew_list(BrowserState& state) {
   std::sort(begin(state.homebrew_listing), end(state.homebrew_listing));
-  if (state.sort_order == ListingSortOrder::kAlphanumericAscending) {
+  if (state.sort_order == ListingSortOrder::kAlphanumericDescending) {
     std::reverse(begin(state.homebrew_listing), end(state.homebrew_listing));
   }
   download_smdh_for_page(kServer, get_title_list_cursor(state.homebrew_listing,
@@ -277,7 +297,7 @@ int main()
           state.homebrew_listing.size() - 1;
     }
     if (kDown & KEY_A) {
-      download_app(kServer, state.homebrew_listing[state.selected_index]);
+      download_app(kServer, state.homebrew_listing[state.selected_index].path);
     }
     if (kDown & KEY_L and state.selected_category > SelectedCategory::kNone) {
       state.selected_category = static_cast<SelectedCategory>(
