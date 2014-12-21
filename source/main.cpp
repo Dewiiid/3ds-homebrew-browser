@@ -96,8 +96,6 @@ int main()
   initialize_storage();
   initialize_sockets();
 
-  //consoleInit(GFX_TOP, nullptr);
-
   // throw our title onscreen (todo: make this part of UI maybe? It's
   // totally static for now)
   u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
@@ -108,15 +106,8 @@ int main()
   draw_sprite(title_screen_bin, fb, 0, 0);
 
   BrowserState state;
-
-  //*
   switch_to_category(state.selected_category, state);
 
-  //*
-  
-  /*/
-  // app_info_for_current_page = std::array<AppInfo, 3>{{}};
-  //*/
   // Main loop
   while (aptMainLoop())
   {
@@ -124,8 +115,8 @@ int main()
     hidScanInput();
     u32 kDown = hidKeysDown();
     
-    handle_input(kDown, state);
     u32 const old_selected_index = state.selected_index;
+    handle_input(kDown, state);
 
     if (old_selected_index / 3 != state.selected_index / 3) {
       download_smdh_for_page(kServer, 

@@ -7,7 +7,7 @@ void handle_input(u32 kDown, BrowserState& state) {
   if (kDown & KEY_START) {
       aptSetStatus(APP_EXITING);
   }
-
+  
   if (kDown & KEY_UP) {
       state.selected_index = state.selected_index ? state.selected_index - 1 : 0;
     }
@@ -21,6 +21,10 @@ void handle_input(u32 kDown, BrowserState& state) {
     if (kDown & KEY_A) {
       download_app(state.homebrew_listing[state.selected_index].server, 
           state.homebrew_listing[state.selected_index].path);
+    }
+
+    if (kDown & KEY_X) {
+      consoleInit(GFX_TOP, nullptr);
     }
 
     if (kDown & KEY_L and state.selected_category > SelectedCategory::kNone) {
