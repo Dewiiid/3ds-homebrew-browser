@@ -19,7 +19,7 @@ def main(args):
 
   for x in range(0,width):
     for y in reversed(range(0,height)):
-      r,b,g = pixels[x,y][:3]
+      r,g,b = pixels[x,y][:3]
       output += struct.pack("<BBB", b, g, r)
 
   output_file = open(output_filename, "wb")

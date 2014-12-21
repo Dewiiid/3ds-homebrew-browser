@@ -24,50 +24,12 @@
 #include "sort_reversed_bin.h"
 #include "ui_bar_bin.h"
 
-struct UIElement {
-  u8 const* const image;
-  s32 const x;
-  s32 const y;
-};
-
-#define EXPAND_AS_ENUM(a, b, c, d) a,
-#define EXPAND_AS_STD_ARRAY(a, b, c, d) {b, c, d},
-#define EXPAND_AS_STRUCT(a, b, c, d) u8 a;
-#define LISTING_UI_ELEMENTS(ELEMENT) \
-  ELEMENT(kGamesDark, category_games_normal_bin, 4, 6) \
-  ELEMENT(kGamesLight, category_games_selected_bin, 4, 6) \
-  ELEMENT(kMediaDark, category_media_normal_bin, 4, 48) \
-  ELEMENT(kMediaLight, category_media_selected_bin, 4, 48) \
-  ELEMENT(kEmulatorsDark, category_emulators_normal_bin, 4, 90) \
-  ELEMENT(kEmulatorsLight, category_emulators_selected_bin, 4, 90) \
-  ELEMENT(kToolsDark, category_tools_normal_bin, 4, 132) \
-  ELEMENT(kToolsLight, category_tools_selected_bin, 4, 132) \
-  ELEMENT(kMiscDark, category_misc_normal_bin, 4, 174) \
-  ELEMENT(kMiscLight, category_misc_selected_bin, 4, 174) \
-  ELEMENT(kTopRowLight, row_base_bin, 51, 3) \
-  ELEMENT(kMiddleRowLight, row_base_bin, 51, 74) \
-  ELEMENT(kBottomRowLight, row_base_bin, 51, 145) \
-  ELEMENT(kTopRowDark, row_selected_bin, 51, 3) \
-  ELEMENT(kMiddleRowDark, row_selected_bin, 51, 74) \
-  ELEMENT(kBottomRowDark, row_selected_bin, 51, 145) \
-  ELEMENT(kUIBar, ui_bar_bin, 0, 216) \
-  ELEMENT(kSortReversed, sort_reversed_bin, 265, 218) \
-  ELEMENT(kScrollBar, scrollbar_bin, 304, 3)
-
-enum class ListingUIElements {
-  LISTING_UI_ELEMENTS(EXPAND_AS_ENUM)
-};
-
-struct ListingUIElementSize {
-  LISTING_UI_ELEMENTS(EXPAND_AS_STRUCT)
-};
-
-std::array<UIElement, sizeof(ListingUIElementSize)> const listing_ui_elements{{
-  LISTING_UI_ELEMENTS(EXPAND_AS_STD_ARRAY)
+std::array<UIElement, sizeof(ListingUIElementSize)> const g_listing_ui_elements{{
+  LISTING_UI_ELEMENTS(EXPAND_UI_AS_STD_ARRAY)
 }};
 
 void draw_ui_element(u8* framebuffer, ListingUIElements const element) {
-  UIElement const& data = listing_ui_elements[static_cast<size_t>(element)];
+  UIElement const& data = g_listing_ui_elements[static_cast<size_t>(element)];
   draw_sprite(data.image, framebuffer, data.x, data.y);
 }
 
@@ -103,7 +65,7 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
     }
 
     if (state.scrollbar.displayed == ListingScrollbarDisplay::kVisible) {
-      UIElement const& data = listing_ui_elements[static_cast<size_t>(ListingUIElements::kScrollBar)];
+      UIElement const& data = g_listing_ui_elements[static_cast<size_t>(ListingUIElements::kScrollBar)];
       // Range is [3,153], total of 150 potential values
       // percentage / 100 = position / potential
       // percentage / 100 * potential = position

@@ -20,47 +20,14 @@
 #include "storage.h"
 #include "ui.h"
 #include "util.h"
+#include "input.h"
+#include "browser.h"
 #include "debug.h"
+
+#include "title_screen_bin.h"
 
 using std::string;
 using std::tuple;
-
-struct Title {
-  string path;
-  string title_name;
-  string category_name;
-
-  bool operator<(const Title& other) {
-    return title_name < other.title_name;
-  }
-};
-
-using TitleList = std::vector<Title>;
-struct TitleListCursor {
-  typename TitleList::const_iterator begin;
-  typename TitleList::const_iterator end;
-  typename TitleList::const_iterator selected;
-};
-
-struct AppInfo {
-  std::array<u8, 48 * 48 * 3>* image;
-  std::string title;  // An empty title denotes an invalid struct.
-  std::string author;
-  std::string description;
-};
-
-struct BrowserState {
-  u32 selected_index = 0;
-  SelectedCategory selected_category = SelectedCategory::kNone;
-
-  TitleList homebrew_listing;
-  std::array<AppInfo, 3> app_info_for_current_page{{
-    {new std::array<u8, 48 * 48 * 3>()},
-    {new std::array<u8, 48 * 48 * 3>()},
-    {new std::array<u8, 48 * 48 * 3>()}
-  }};
-  ListingSortOrder sort_order{ListingSortOrder::kAlphanumericAscending};
-};
 
 string const kServer = "http://23.21.136.4:1337";
 
@@ -262,7 +229,16 @@ int main()
   initialize_storage();
   initialize_sockets();
 
-  consoleInit(GFX_TOP, nullptr);  
+  //consoleInit(GFX_TOP, nullptr);
+
+  // throw our title onscreen (todo: make this part of UI maybe? It's
+  // totally static for now)
+  u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+  draw_sprite(title_screen_bin, fb, 0, 0);
+  gfxFlushBuffers();
+  gfxSwapBuffers();
+  fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+  draw_sprite(title_screen_bin, fb, 0, 0);
 
   BrowserState state;
 
@@ -279,13 +255,10 @@ int main()
   {
     gspWaitForVBlank();
     hidScanInput();
-
-    // Your code goes here
-
     u32 kDown = hidKeysDown();
-    if (kDown & KEY_START) {
-        break;  // Break in order to return to Homebrew Launcher.
-    }
+    
+    handle_input(kDown, state);
+    
     u32 const old_selected_index = state.selected_index;
     if (kDown & KEY_UP) {
       state.selected_index = state.selected_index ? state.selected_index - 1 : 0;
