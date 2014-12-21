@@ -3,12 +3,15 @@
 #include "http.h"
 #include "storage.h"
 #include "smdh.h"
+#include "string.h"
 
 #include "debug.h"
 #include "util.h"
 
 #include <map>
 #include <algorithm>
+
+#include "no_icon_bin.h"
 
 using std::string;
 
@@ -38,6 +41,11 @@ Result download_smdh(std::string const& server, Title const& title, AppInfo& app
   std::vector<u8> smdh_byte_buffer;
   std::tie(error, smdh_byte_buffer) = http_get(server + "/" + title.path + "/smdh");
   if (error) {
+    //provide dummy tile data, and as sane default info as we can come up with
+    app_info.title = title.title_name;
+    app_info.author = "Unknown Publisher";
+    app_info.description = "";
+    memcpy(&(*app_info.image)[0], no_icon_bin + 8, 48 * 48 * 3);
     return error;
   }
 
