@@ -1,10 +1,21 @@
 #ifndef HOMEBREW_BROWSER_BROWSER_H_
 #define HOMEBREW_BROWSER_BROWSER_H_
 
+#include <3ds.h>
+
+#include <string>
+#include <vector>
+#include <array>
+
+#include "ui.h"
+
+std::string const kServer = "http://23.21.136.4:1337";
+
 struct Title {
   std::string path;
   std::string title_name;
   std::string category_name;
+  std::string server;
 
   bool operator<(const Title& other) {
     return title_name < other.title_name;
@@ -38,6 +49,13 @@ struct BrowserState {
   ListingSortOrder sort_order{ListingSortOrder::kAlphanumericAscending};
 };
 
-
+Result download_app(std::string const& server, std::string const& title);
+void switch_to_category(SelectedCategory category, BrowserState& state);
+std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url, SelectedCategory category);
+void sort_homebrew_list(BrowserState& state);
+void download_smdh_for_page(std::string const& server,
+    TitleListCursor const& cursor, std::array<AppInfo, 3>& smdh_cache);
+TitleListCursor get_title_list_cursor(TitleList const& titles,
+    TitleList::size_type const& offset);
 
 #endif  // HOMEBREW_BROWSER_BROWSER_H_
