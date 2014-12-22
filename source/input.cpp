@@ -70,7 +70,7 @@ bool ui_element_touched(touchPosition const pos, ListingUIElements const element
 
 void toggle_category(SelectedCategory touched_category, BrowserState& state) {
   bool category_already_selected = touched_category == state.selected_category;
-  switch_to_category(touched_category == state.selected_category ? 
+  switch_to_category(category_already_selected ? 
       SelectedCategory::kNone : touched_category, state);
 }
 
@@ -94,7 +94,9 @@ void handle_touch_input(touchPosition const pos, BrowserState& state) {
     toggle_category(SelectedCategory::kMisc, state);
   }
 
-  debug_message("Touch: " + string_from<int>(pos.px) + ", " + string_from<int>(pos.py));
+
+
+  
 }
 
 void handle_input(u32 const keys_down, touchPosition const touch_position, BrowserState& state) {

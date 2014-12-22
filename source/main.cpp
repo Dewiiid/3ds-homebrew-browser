@@ -86,7 +86,7 @@ void fade_to_black() {
   for (int i = 0; i < 16; i++) {
     gspWaitForVBlank();
     for (int j = 0; j < 2; j++) {
-      //fade top screen to black
+      // fade top screen to black
       u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
       for (u8* color = fb; color < fb + 400 * 240 * 3; color++) {
         if (*color > 16) {
@@ -95,7 +95,7 @@ void fade_to_black() {
           *color = 0;
         }
       }
-      //fade bottom screen to black
+      // fade bottom screen to black
       fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
       for (u8* color = fb; color < fb + 320 * 240 * 3; color++) {
         if (*color > 16) {
@@ -117,8 +117,7 @@ int main()
   srvInit();
   aptInit();
   hidInit(NULL);
-  gfxInit();
-  //gfxSet3D(true); // uncomment if using stereoscopic 3D
+  gfxInit();  
   fsInit();
   httpcInit();
 
