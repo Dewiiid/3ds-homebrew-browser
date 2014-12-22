@@ -62,5 +62,6 @@ void download_smdh_for_page(std::string const& server,
     FilteredListCursor const& cursor, std::array<AppInfo, 3>& smdh_cache);
 FilteredListCursor get_title_list_cursor(FilteredList const& titles,
     FilteredList::size_type const& offset);
+void initialize_smdh_cache();
 
 #endif  // HOMEBREW_BROWSER_BROWSER_H_

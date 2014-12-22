@@ -15,9 +15,14 @@
 
 using std::string;
 
+const string kCachePrefix = "/3ds/homebrew-browser/icon-cache/";
+
+void initialize_smdh_cache() {
+  mkdirp(kCachePrefix);
+}
+
 Result download_app(std::string const& server, std::string const& title) {
   string appname = title.substr(title.find("/") + 1);
-  debug_message("Downloading " + title + " from " + server + "...", true);
   Result error{0};
   std::vector<std::string> title_file_listing;
   std::tie(error, title_file_listing) =
@@ -37,19 +42,28 @@ Result download_app(std::string const& server, std::string const& title) {
 }
 
 Result download_smdh(std::string const& server, Title const& title, AppInfo& app_info) {
-  //check the cache first
-  
-
   Result error{0};
   std::vector<u8> smdh_byte_buffer;
-  std::tie(error, smdh_byte_buffer) = http_get(server + "/" + title.path + "/smdh");
-  if (error) {
-    //provide dummy tile data, and as sane default info as we can come up with
-    app_info.title = title.title_name;
-    app_info.author = "Unknown Publisher";
-    app_info.description = "";
-    memcpy(&(*app_info.image)[0], no_icon_bin + 8, 48 * 48 * 3);
-    return error;
+
+  //check the cache first
+  if (file_exists(kCachePrefix + title.title_name + ".smdh")) {
+    //We already have this in the cache, so just use that.
+    std::tie(error, smdh_byte_buffer) = read_entire_file(kCachePrefix 
+        + title.title_name + ".smdh");
+  } else {
+    std::tie(error, smdh_byte_buffer) = http_get(server + "/" + title.path + "/smdh");
+    if (error) {
+      //provide dummy tile data, and as sane default info as we can come up with
+      app_info.title = title.title_name;
+      app_info.author = "Unknown Publisher";
+      app_info.description = "";
+      memcpy(&(*app_info.image)[0], no_icon_bin + 8, 48 * 48 * 3);
+      return error;
+    } else {
+      //now that we have this file, go ahead and store it in the cache for later
+      write_file(kCachePrefix + title.title_name + ".smdh", 
+          &smdh_byte_buffer[0], smdh_byte_buffer.size());
+    }
   }
 
   char smdh_title[0x40];
@@ -90,8 +104,6 @@ void download_smdh_for_page(std::string const& server,
     Result error = download_smdh(server, **visible_title, *app_info);
     if (error) {
       debug_message("SMDH Download ERR: " + string_from<int>(error));
-    } else {
-      debug_message("Downloaded icon for " + app_info->title);
     }
   }
 }

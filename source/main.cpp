@@ -123,6 +123,8 @@ int main()
   initialize_storage();
   initialize_sockets();
 
+  initialize_smdh_cache();
+
   // throw our title onscreen (todo: make this part of UI maybe? It's
   // totally static for now)
   /*

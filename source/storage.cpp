@@ -35,7 +35,7 @@ u32 write_file(std::string const& absolute_path, void* data, u32 byte_count) {
 
 // Attempt to make this directory, including all of its parent directories
 Result mkdirp(std::string const& absolute_path) {
-  //split this path into its filename and its "parent"
+  //split this path into its filename and its "parent" path
   size_t const position_of_last_slash = absolute_path.find_last_of('/');
   std::string const directory = absolute_path.substr(0, position_of_last_slash);
   std::string const filename = absolute_path.substr(position_of_last_slash + 1);
@@ -55,6 +55,29 @@ bool file_exists(std::string const& absolute_filename) {
   Result error{0};
   Handle file_handle;
   error = FSUSER_OpenFile(NULL, &file_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_filename.c_str()), FS_OPEN_READ, 0);
-  FSFILE_Close(file_handle);
+  if (!error) {
+    FSFILE_Close(file_handle);
+  }
   return !error;
+}
+
+// Given a filename, attempts to read the contents into a vector. Result is 0
+// on success.
+std::tuple<Result, std::vector<u8>> read_entire_file(std::string const& absolute_filename) {
+  Result error{0};
+  Handle file_handle;
+  error = FSUSER_OpenFile(NULL, &file_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_filename.c_str()), FS_OPEN_READ, 0);
+  if (error) {
+    //FSFILE_Close(file_handle); // maybe not needed?
+    return std::make_tuple(error, std::vector<u8>{});
+  }
+  std::vector<u8> file_contents;
+  u64 file_size;
+  FSFILE_GetSize(file_handle, &file_size);
+  file_contents.resize(file_size);
+  u32 bytes_read;
+  const u32 kOffset{0};
+  FSFILE_Read(file_handle, &bytes_read, kOffset, &file_contents[0], file_contents.size());
+  FSFILE_Close(file_handle);
+  return std::make_tuple(error, file_contents);
 }
