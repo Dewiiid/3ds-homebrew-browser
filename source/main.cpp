@@ -142,10 +142,12 @@ int main()
   {
     gspWaitForVBlank();
     hidScanInput();
-    u32 kDown = hidKeysDown();
+    u32 keys_down = hidKeysDown();
+    touchPosition touch_position;
+    hidTouchRead(&touch_position);
     
     u32 const old_selected_index = state.selected_index;
-    handle_input(kDown, state);
+    handle_input(keys_down, touch_position, state);
 
     if (old_selected_index / 3 != state.selected_index / 3) {
       download_smdh_for_page(kServer, 

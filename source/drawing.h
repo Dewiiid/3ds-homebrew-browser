@@ -13,4 +13,7 @@ void draw_sprite_from_atlas(u8 const* const source, u8* framebuffer,
     s32 screen_x, s32 screen_y, u32 atlas_x, u32 atlas_y, u32 width,
     u32 height);
 
+u32 get_image_width(u8 const* const image);
+u32 get_image_height(u8 const* const image);
+
 #endif  // HOMEBREW_BROWSER_DRAWING_H_

@@ -100,9 +100,9 @@ void download_smdh_for_page(std::string const& server,
 void switch_to_category(SelectedCategory category, BrowserState& state) {
   Result error{0};
   std::tie(error, state.homebrew_listing) = get_homebrew_listing(kServer, category);
-  sort_homebrew_list(state);
   state.selected_index = 0;
   sort_homebrew_list(state);
+  state.selected_category = category;
 }
 
 TitleListCursor get_title_list_cursor(TitleList const& titles,
