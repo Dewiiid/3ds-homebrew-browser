@@ -23,10 +23,11 @@ struct Title {
 };
 
 using TitleList = std::vector<Title>;
-struct TitleListCursor {
-  typename TitleList::const_iterator begin;
-  typename TitleList::const_iterator end;
-  typename TitleList::const_iterator selected;
+using FilteredList = std::vector<Title*>;
+struct FilteredListCursor {
+  typename FilteredList::const_iterator begin;
+  typename FilteredList::const_iterator end;
+  typename FilteredList::const_iterator selected;
 };
 
 struct AppInfo {
@@ -40,7 +41,10 @@ struct BrowserState {
   u32 selected_index = 0;
   SelectedCategory selected_category = SelectedCategory::kNone;
 
-  TitleList homebrew_listing;
+  TitleList full_homebrew_list;
+  FilteredList filtered_homebrew_list;
+  bool filtered_list_dirty = true;
+
   std::array<AppInfo, 3> app_info_for_current_page{{
     {new std::array<u8, 48 * 48 * 3>()},
     {new std::array<u8, 48 * 48 * 3>()},
@@ -51,11 +55,12 @@ struct BrowserState {
 
 Result download_app(std::string const& server, std::string const& title);
 void switch_to_category(SelectedCategory category, BrowserState& state);
-std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url, SelectedCategory category);
+std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url);
 void sort_homebrew_list(BrowserState& state);
+void filter_homebrew_list(BrowserState& state);
 void download_smdh_for_page(std::string const& server,
-    TitleListCursor const& cursor, std::array<AppInfo, 3>& smdh_cache);
-TitleListCursor get_title_list_cursor(TitleList const& titles,
-    TitleList::size_type const& offset);
+    FilteredListCursor const& cursor, std::array<AppInfo, 3>& smdh_cache);
+FilteredListCursor get_title_list_cursor(FilteredList const& titles,
+    FilteredList::size_type const& offset);
 
 #endif  // HOMEBREW_BROWSER_BROWSER_H_

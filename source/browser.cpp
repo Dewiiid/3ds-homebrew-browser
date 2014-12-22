@@ -63,7 +63,7 @@ Result download_smdh(std::string const& server, Title const& title, AppInfo& app
 }
 
 void download_smdh_for_page(std::string const& server,
-    TitleListCursor const& cursor, std::array<AppInfo, 3>& smdh_cache) {
+    FilteredListCursor const& cursor, std::array<AppInfo, 3>& smdh_cache) {
   bool const there_are_no_titles = cursor.begin == cursor.end;
   if (there_are_no_titles) {
     std::for_each(begin(smdh_cache), end(smdh_cache), [](AppInfo& info) {
@@ -80,34 +80,28 @@ void download_smdh_for_page(std::string const& server,
       std::distance(visible_titles_begin, cursor.end) < 3 ?
       cursor.end : std::next(visible_titles_begin, 3);
 
-  // std::transform(visible_titles_begin, visible_titles_end, begin(smdh_cache),
-  //     [&server](Title const& title) {
   auto app_info = begin(smdh_cache);
   auto visible_title = visible_titles_begin;
   for (; app_info != end(smdh_cache) and visible_title != visible_titles_end;
       ++app_info, ++visible_title) {
-    // This assumes that there is always an icon. This wont always be the case,
-    // so this needs to be adjusted to place a default icon in the slot and
-    // empty out the strings on a failed download.
-    Result error = download_smdh(server, *visible_title, *app_info);
+    Result error = download_smdh(server, **visible_title, *app_info);
     if (error) {
       debug_message("SMDH Download ERR: " + string_from<int>(error));
+    } else {
+      debug_message("Downloaded icon for " + app_info->title);
     }
   }
-  // });
 }
 
 void switch_to_category(SelectedCategory category, BrowserState& state) {
-  Result error{0};
-  std::tie(error, state.homebrew_listing) = get_homebrew_listing(kServer, category);
   state.selected_index = 0;
-  sort_homebrew_list(state);
   state.selected_category = category;
+  state.filtered_list_dirty = true;
 }
 
-TitleListCursor get_title_list_cursor(TitleList const& titles,
-    TitleList::size_type const& offset) {
-  return TitleListCursor{
+FilteredListCursor get_title_list_cursor(FilteredList const& titles,
+    FilteredList::size_type const& offset) {
+  return FilteredListCursor{
     begin(titles),
     end(titles),
     std::next(begin(titles), offset)
@@ -122,14 +116,10 @@ std::map<SelectedCategory, string> g_category_names {
   {SelectedCategory::kMisc, "misc"}
 };
 
-std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url, SelectedCategory category) {
+std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url) {
   Result error;
   std::vector<std::string> raw_listing;
-  if (category == SelectedCategory::kNone) {
-    std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/homebrew_list");
-  } else {
-    std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/" + g_category_names[category] + "/homebrew_list");
-  }
+  std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/homebrew_list");
   std::vector<Title> title_list;
   for (auto path : raw_listing) {
     title_list.push_back({
@@ -143,10 +133,19 @@ std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& s
 }
 
 void sort_homebrew_list(BrowserState& state) {
-  std::sort(begin(state.homebrew_listing), end(state.homebrew_listing));
+  std::sort(begin(state.full_homebrew_list), end(state.full_homebrew_list));
   if (state.sort_order == ListingSortOrder::kAlphanumericDescending) {
-    std::reverse(begin(state.homebrew_listing), end(state.homebrew_listing));
+    std::reverse(begin(state.full_homebrew_list), end(state.full_homebrew_list));
   }
-  download_smdh_for_page(kServer, get_title_list_cursor(state.homebrew_listing,
-      state.selected_index), state.app_info_for_current_page);
+}
+
+void filter_homebrew_list(BrowserState& state) {
+  state.filtered_homebrew_list.clear();
+  for (auto& title : state.full_homebrew_list) {
+    if (state.selected_category == SelectedCategory::kNone or 
+        title.category_name == g_category_names[state.selected_category]) {
+      state.filtered_homebrew_list.push_back(&title);
+      //debug_message("Filter selected " + title.title_name);
+    }
+  }
 }

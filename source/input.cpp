@@ -11,7 +11,7 @@ void toggle_sort_order(BrowserState& state) {
   } else {
     state.sort_order = ListingSortOrder::kAlphanumericAscending;
   }
-  sort_homebrew_list(state);
+  state.filtered_list_dirty = true;
 }
 
 void handle_button_input(u32 const keys_down, BrowserState& state) {
@@ -25,14 +25,14 @@ void handle_button_input(u32 const keys_down, BrowserState& state) {
     }
     if (keys_down & KEY_DOWN) {
       state.selected_index = 
-          state.selected_index < state.homebrew_listing.size() - 1 ?
+          state.selected_index < state.filtered_homebrew_list.size() - 1 ?
           state.selected_index + 1 :
-          state.homebrew_listing.size() - 1;
+          state.filtered_homebrew_list.size() - 1;
     }
 
     if (keys_down & KEY_A) {
-      download_app(state.homebrew_listing[state.selected_index].server, 
-          state.homebrew_listing[state.selected_index].path);
+      download_app(state.filtered_homebrew_list[state.selected_index]->server, 
+          state.filtered_homebrew_list[state.selected_index]->path);
     }
 
     if (keys_down & KEY_X) {
