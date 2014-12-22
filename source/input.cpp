@@ -69,11 +69,9 @@ bool ui_element_touched(touchPosition const pos, ListingUIElements const element
 }
 
 void toggle_category(SelectedCategory touched_category, BrowserState& state) {
-  if (state.selected_category != touched_category) {
-    switch_to_category(touched_category, state);
-  } else {
-    switch_to_category(SelectedCategory::kNone, state);
-  }
+  bool category_already_selected = touched_category == state.selected_category;
+  switch_to_category(touched_category == state.selected_category ? 
+      SelectedCategory::kNone : touched_category, state);
 }
 
 void handle_touch_input(touchPosition const pos, BrowserState& state) {
