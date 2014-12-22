@@ -143,6 +143,16 @@ int main()
 
   debug_message("Downloaded " + string_from<int>(state.full_homebrew_list.size()) + " titles!");
 
+  mkdirp("/this/is/a/test/thing");
+
+  if (file_exists("/path/to/nonexistant/thing")) {
+    debug_message("/path/to/nonexistant/thing exists!");
+  }
+
+  if (file_exists("/3ds/homebrew-browser/homebrew-browser.3dsx")) {
+    debug_message("/3ds/homebrew-browser/homebrew-browser.3dsx");
+  }
+
   // Main loop
   while (aptMainLoop())
   {

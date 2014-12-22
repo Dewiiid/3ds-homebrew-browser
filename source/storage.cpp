@@ -1,5 +1,8 @@
 #include "storage.h"
 
+#include "debug.h"
+#include "util.h"
+
 #include <cstring>
 
 FS_archive sdmc_archive;
@@ -28,4 +31,30 @@ u32 write_file(std::string const& absolute_path, void* data, u32 byte_count) {
   std::string const directory = absolute_path.substr(0, position_of_last_slash + 1);
   std::string const filename = absolute_path.substr(position_of_last_slash + 1);
   return write_file(directory.c_str(), filename.c_str(), data, byte_count);
+}
+
+// Attempt to make this directory, including all of its parent directories
+Result mkdirp(std::string const& absolute_path) {
+  //split this path into its filename and its "parent"
+  size_t const position_of_last_slash = absolute_path.find_last_of('/');
+  std::string const directory = absolute_path.substr(0, position_of_last_slash);
+  std::string const filename = absolute_path.substr(position_of_last_slash + 1);
+
+  if (directory.size() > 0) {
+    //make sure the parent path exists first
+    mkdirp(directory);
+  }
+
+  Result error;
+  error = FSUSER_CreateDirectory(NULL, sdmc_archive, 
+      FS_makePath(PATH_CHAR, absolute_path.c_str()));
+  return error;
+}
+
+bool file_exists(std::string const& absolute_filename) {
+  Result error{0};
+  Handle file_handle;
+  error = FSUSER_OpenFile(NULL, &file_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_filename.c_str()), FS_OPEN_READ, 0);
+  FSFILE_Close(file_handle);
+  return !error;
 }

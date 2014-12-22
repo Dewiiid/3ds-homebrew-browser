@@ -37,6 +37,9 @@ Result download_app(std::string const& server, std::string const& title) {
 }
 
 Result download_smdh(std::string const& server, Title const& title, AppInfo& app_info) {
+  //check the cache first
+  
+
   Result error{0};
   std::vector<u8> smdh_byte_buffer;
   std::tie(error, smdh_byte_buffer) = http_get(server + "/" + title.path + "/smdh");
