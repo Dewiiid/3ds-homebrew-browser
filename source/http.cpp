@@ -176,6 +176,8 @@ int read_http_content_into_file(int socket_desc, u32 content_length,
   FSFILE_Write(file_handle, &bytes_written, content_received, header_content_start, header_content_length, FS_WRITE_FLUSH);
   content_received += header_content_length;
 
+  u32 last_report = 0;
+  u32 successive_failed_reads = 0;
   while (content_received < content_length) {
     int bytes_read = recv(socket_desc, g_content_buffer,
         kContentBufferSize, 0);
@@ -190,7 +192,20 @@ int read_http_content_into_file(int socket_desc, u32 content_length,
     FSFILE_Write(file_handle, &bytes_written, content_received, g_content_buffer, bytes_read, FS_WRITE_FLUSH);
     content_received += bytes_read;
     //debug_message(string_from<int>(content_received) + "/" + string_from<int>(content_length) + " " + absolute_path);
-    report(content_received * 100 / content_length);
+    if (bytes_read == 0 or content_received > last_report + 4096) {
+     report(content_received * 100 / content_length);
+    }
+
+    if (bytes_read == 0) {
+      successive_failed_reads++;
+    } else {
+      successive_failed_reads = 0;
+    }
+
+    if (successive_failed_reads > 1800) {  // 1800 is roughly 30 seconds worth of frames, this is a sensible timeout
+      debug_message("Download failed! Aborting.");
+      break;
+    }
   }
   FSFILE_Close(file_handle);
   return content_received;

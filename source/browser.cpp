@@ -42,6 +42,7 @@ void draw_centered_string(u8* fb, Font const& font, int y_pos, string str) {
 
 void update_download_status(string current_file, int file_index, 
     int total_files, int file_progress) {
+  gspWaitForVBlank();
   //first, draw a blank window
   u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
   draw_ui_element(fb, ListingUIElements::kDownloadWindow);
@@ -59,6 +60,7 @@ void update_download_status(string current_file, int file_index,
 
   gfxFlushBuffers();
   gfxSwapBuffers();
+
 }
 
 Result download_app(std::string const& server, std::string const& title) {
