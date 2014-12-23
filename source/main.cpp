@@ -128,16 +128,15 @@ int main()
 
   // throw our title onscreen (todo: make this part of UI maybe? It's
   // totally static for now)
-  /*
   u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
   draw_sprite(title_screen_bin, fb, 0, 0);
   gfxFlushBuffers();
   gfxSwapBuffers();
   fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
   draw_sprite(title_screen_bin, fb, 0, 0);
-  */
+  
 
-  consoleInit(GFX_TOP, nullptr);
+  //consoleInit(GFX_TOP, nullptr);
   debug_message("Downloading homebrew list...");
 
   BrowserState state;
