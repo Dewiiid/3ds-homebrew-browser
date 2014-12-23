@@ -5,6 +5,8 @@
 #include "smdh.h"
 #include "string.h"
 
+#include "drawing.h"
+#include "ui.h"
 #include "debug.h"
 #include "util.h"
 
@@ -21,15 +23,43 @@ void initialize_smdh_cache() {
   mkdirp(kCachePrefix);
 }
 
+void prepare_download_window() {
+  //Prepare the framebuffers by darkening both of them
+  u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+  fx_darken_background(fb, 320*240);
+  gfxFlushBuffers();
+  gfxSwapBuffers();
+  fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+  fx_darken_background(fb, 320*240);
+}
+
+void update_download_status(string current_file, int file_index, 
+    int total_files) {
+  //first, draw a blank window
+  u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+  draw_ui_element(fb, ListingUIElements::kDownloadWindow);
+
+  //NOT FINISHED!!
+}
+
 Result download_app(std::string const& server, std::string const& title) {
+  // cheat: draw an interface here, since we're going to be blocking
+  // the main thread.
+  // TODO: make downloads happen in the background, and instead do most of
+  // this logic as part of the UI framework / application state.
+  prepare_download_window();
+
   string appname = title.substr(title.find("/") + 1);
   Result error{0};
   std::vector<std::string> title_file_listing;
   std::tie(error, title_file_listing) =
       get_file_listing_for_title(server, title);
 
-  for (auto const& relative_path : title_file_listing) {
+  //for (auto const& relative_path : title_file_listing) {
+  for (unsigned int i = 0; i < title_file_listing.size(); i++) {
+    auto relative_path = title_file_listing[i];
     string server_path = "/3ds/" + title + "/" + relative_path;
+    update_download_status(server_path, i, title_file_listing.size());
     debug_message("Downloading file: " + server_path, true);
     std::vector<u8> file_contents;
     std::tie(error, file_contents) = http_get(server + server_path);

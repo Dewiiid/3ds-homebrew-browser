@@ -16,4 +16,6 @@ void draw_sprite_from_atlas(u8 const* const source, u8* framebuffer,
 u32 get_image_width(u8 const* const image);
 u32 get_image_height(u8 const* const image);
 
+void fx_darken_background(u8* framebuffer, u32 pixel_count);
+
 #endif  // HOMEBREW_BROWSER_DRAWING_H_

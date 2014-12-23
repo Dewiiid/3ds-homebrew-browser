@@ -87,7 +87,8 @@ struct UIElement {
   ELEMENT(kScrollBar, scrollbar_bin, 304, 3) \
   ELEMENT(kTopOwnedIcon, owned_icon_bin, 287, 6) \
   ELEMENT(kMiddleOwnedIcon, owned_icon_bin, 287, 77) \
-  ELEMENT(kBottomOwnedIcon, owned_icon_bin, 287, 148)
+  ELEMENT(kBottomOwnedIcon, owned_icon_bin, 287, 148) \
+  ELEMENT(kDownloadWindow, download_window_bin, 32, 32) \
 
 enum class ListingUIElements {
   LISTING_UI_ELEMENTS(EXPAND_UI_AS_ENUM)
@@ -101,5 +102,6 @@ extern std::array<UIElement, sizeof(ListingUIElementSize)> const g_listing_ui_el
 
 void draw_full_ui_from_state(ListingDrawState const& state);
 void redraw_full_ui();
+void draw_ui_element(u8* framebuffer, ListingUIElements const element);
 
 #endif  // HOMEBREW_BROWSER_UI_H_

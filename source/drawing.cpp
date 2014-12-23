@@ -61,3 +61,9 @@ void draw_solid_background(u8* framebuffer, u32 pixel_count, u8 r, u8 g, u8 b) {
     framebuffer[3 * i + 2] = r;
   }
 }
+
+void fx_darken_background(u8* framebuffer, u32 pixels) {
+  for (u8* color = framebuffer; color < framebuffer + pixels * 3; color++) {
+    *color = *color >> 1;
+  }
+}

@@ -24,6 +24,7 @@
 #include "sort_reversed_bin.h"
 #include "ui_bar_bin.h"
 #include "owned_icon_bin.h"
+#include "download_window_bin.h"
 
 std::array<UIElement, sizeof(ListingUIElementSize)> const g_listing_ui_elements{{
   LISTING_UI_ELEMENTS(EXPAND_UI_AS_STD_ARRAY)
