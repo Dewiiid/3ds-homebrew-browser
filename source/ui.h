@@ -89,6 +89,8 @@ struct UIElement {
   ELEMENT(kMiddleOwnedIcon, owned_icon_bin, 287, 77) \
   ELEMENT(kBottomOwnedIcon, owned_icon_bin, 287, 148) \
   ELEMENT(kDownloadWindow, download_window_bin, 32, 32) \
+  ELEMENT(kProgressBarEmpty, progress_bar_empty_bin, 85, 146) \
+  ELEMENT(kProgressBarFull, progress_bar_full_bin, 85, 146)
 
 enum class ListingUIElements {
   LISTING_UI_ELEMENTS(EXPAND_UI_AS_ENUM)

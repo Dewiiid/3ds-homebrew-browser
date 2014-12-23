@@ -10,7 +10,7 @@ extern std::array<CharacterDescription, 128> ubuntu_light_10pt_desc;
 extern std::array<CharacterDescription, 128> ubuntu_condensed_14pt_desc;
 
 Font const title_font{ubuntu_condensed_14pt_desc, ubuntu_condensed_14pt_bin};
-Font const console_font{ubuntu_light_10pt_desc, ubuntu_light_10pt_bin};
+Font const description_font{ubuntu_light_10pt_desc, ubuntu_light_10pt_bin};
 
 void putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const c) {

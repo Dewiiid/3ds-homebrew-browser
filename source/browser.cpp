@@ -9,6 +9,7 @@
 #include "ui.h"
 #include "debug.h"
 #include "util.h"
+#include "font.h"
 
 #include <map>
 #include <algorithm>
@@ -39,7 +40,26 @@ void update_download_status(string current_file, int file_index,
   u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
   draw_ui_element(fb, ListingUIElements::kDownloadWindow);
 
-  //NOT FINISHED!!
+  string header = "Currently Downloading:";
+  u32 header_width = string_width(title_font,
+      header.c_str(), header.size());
+  u32 current_file_width = string_width(description_font,
+      current_file.c_str(), current_file.size());
+  u32 header_position = 160 - (header_width / 2);
+  u32 current_file_position = 160 - (current_file_width / 2);
+
+  putnchar(fb, header_position, 70, title_font, header.c_str(), header.size());
+  putnchar(fb, current_file_position, 90, description_font, 
+      current_file.c_str(), current_file.size());
+
+  draw_ui_element(fb, ListingUIElements::kProgressBarEmpty);
+
+  //manual draw here
+  UIElement const& data = g_listing_ui_elements[static_cast<size_t>(ListingUIElements::kProgressBarFull)];
+  draw_raw_sprite(data.image + 8, fb, data.x, data.y, file_index * 150 / total_files, 27);  
+
+  gfxFlushBuffers();
+  gfxSwapBuffers();
 }
 
 Result download_app(std::string const& server, std::string const& title) {
@@ -59,15 +79,13 @@ Result download_app(std::string const& server, std::string const& title) {
   for (unsigned int i = 0; i < title_file_listing.size(); i++) {
     auto relative_path = title_file_listing[i];
     string server_path = "/3ds/" + title + "/" + relative_path;
-    update_download_status(server_path, i, title_file_listing.size());
-    debug_message("Downloading file: " + server_path, true);
+    update_download_status(title + "/" + relative_path, i, 
+        title_file_listing.size());
     std::vector<u8> file_contents;
     std::tie(error, file_contents) = http_get(server + server_path);
-    debug_message("Writing file: /3ds/" + appname + "/" + relative_path);
     write_file("/3ds/" + appname + "/" + relative_path, 
         &file_contents[0], file_contents.size());
   }
-  debug_message("Finished.");
   return error;
 }
 
