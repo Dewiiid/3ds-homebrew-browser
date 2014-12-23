@@ -79,7 +79,7 @@ Result download_smdh(std::string const& server, Title const& title, AppInfo& app
   return error;
 }
 
-void download_smdh_for_page(std::string const& server,
+void update_metadata_for_page(std::string const& server,
     FilteredListCursor const& cursor, std::array<AppInfo, 3>& smdh_cache) {
   bool const there_are_no_titles = cursor.begin == cursor.end;
   if (there_are_no_titles) {
@@ -101,9 +101,15 @@ void download_smdh_for_page(std::string const& server,
   auto visible_title = visible_titles_begin;
   for (; app_info != end(smdh_cache) and visible_title != visible_titles_end;
       ++app_info, ++visible_title) {
+    //update the SMDH data
     Result error = download_smdh(server, **visible_title, *app_info);
     if (error) {
       debug_message("SMDH Download ERR: " + string_from<int>(error));
+    }
+    if (directory_exists("/3ds/" + (*visible_title)->title_name)) {
+      app_info->owned = true;
+    } else {
+      app_info->owned = false;
     }
   }
 }

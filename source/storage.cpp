@@ -61,6 +61,16 @@ bool file_exists(std::string const& absolute_filename) {
   return !error;
 }
 
+bool directory_exists(std::string const& absolute_path) {
+  Result error{0};
+  Handle directory_handle;
+  error = FSUSER_OpenDirectory(NULL, &directory_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_path.c_str()));
+  if (!error) {
+    FSDIR_Close(directory_handle);
+  }
+  return !error;
+}
+
 // Given a filename, attempts to read the contents into a vector. Result is 0
 // on success.
 std::tuple<Result, std::vector<u8>> read_entire_file(std::string const& absolute_filename) {

@@ -35,6 +35,7 @@ struct AppInfo {
   std::string title;  // An empty title denotes an invalid struct.
   std::string author;
   std::string description;
+  bool owned;
 };
 
 struct BrowserState {
@@ -58,7 +59,7 @@ void switch_to_category(SelectedCategory category, BrowserState& state);
 std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url);
 void sort_homebrew_list(BrowserState& state);
 void filter_homebrew_list(BrowserState& state);
-void download_smdh_for_page(std::string const& server,
+void update_metadata_for_page(std::string const& server,
     FilteredListCursor const& cursor, std::array<AppInfo, 3>& smdh_cache);
 FilteredListCursor get_title_list_cursor(FilteredList const& titles,
     FilteredList::size_type const& offset);

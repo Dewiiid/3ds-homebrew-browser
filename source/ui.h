@@ -26,6 +26,7 @@ struct ListingMetadata {
   u8 const* icon;
   std::string title;
   std::string description;
+  bool owned;
 };
 
 enum class ListingScrollbarDisplay {
@@ -83,7 +84,10 @@ struct UIElement {
   ELEMENT(kBottomRowDark, row_selected_bin, 51, 145) \
   ELEMENT(kUIBar, ui_bar_bin, 0, 216) \
   ELEMENT(kSortReversed, sort_reversed_bin, 265, 218) \
-  ELEMENT(kScrollBar, scrollbar_bin, 304, 3)
+  ELEMENT(kScrollBar, scrollbar_bin, 304, 3) \
+  ELEMENT(kTopOwnedIcon, owned_icon_bin, 287, 6) \
+  ELEMENT(kMiddleOwnedIcon, owned_icon_bin, 287, 77) \
+  ELEMENT(kBottomOwnedIcon, owned_icon_bin, 287, 148)
 
 enum class ListingUIElements {
   LISTING_UI_ELEMENTS(EXPAND_UI_AS_ENUM)

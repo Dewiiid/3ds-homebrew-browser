@@ -23,6 +23,7 @@
 #include "sort_normal_bin.h"
 #include "sort_reversed_bin.h"
 #include "ui_bar_bin.h"
+#include "owned_icon_bin.h"
 
 std::array<UIElement, sizeof(ListingUIElementSize)> const g_listing_ui_elements{{
   LISTING_UI_ELEMENTS(EXPAND_UI_AS_STD_ARRAY)
@@ -47,16 +48,25 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
       draw_ui_element(fb, state.selected_title == 0 ? ListingUIElements::kTopRowDark : ListingUIElements::kTopRowLight);
       draw_raw_sprite(state.visible_titles[0].icon, fb, 61, 13, 48, 48);
       putnchar(fb, 123, 9, title_font, state.visible_titles[0].title.c_str(), state.visible_titles[0].title.size());
+      if (state.visible_titles[0].owned) {
+        draw_ui_element(fb, ListingUIElements::kTopOwnedIcon);
+      }
     }
     if (state.visible_titles[1].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 1 ? ListingUIElements::kMiddleRowDark : ListingUIElements::kMiddleRowLight);
       draw_raw_sprite(state.visible_titles[1].icon, fb, 61, 84, 48, 48);
       putnchar(fb, 123, 80, title_font, state.visible_titles[1].title.c_str(), state.visible_titles[1].title.size());
+      if (state.visible_titles[1].owned) {
+        draw_ui_element(fb, ListingUIElements::kMiddleOwnedIcon);
+      }
     }
     if (state.visible_titles[2].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 2 ? ListingUIElements::kBottomRowDark : ListingUIElements::kBottomRowLight);
       draw_raw_sprite(state.visible_titles[2].icon, fb, 61, 155, 48, 48);
       putnchar(fb, 123, 151, title_font, state.visible_titles[2].title.c_str(), state.visible_titles[2].title.size());
+      if (state.visible_titles[2].owned) {
+        draw_ui_element(fb, ListingUIElements::kBottomOwnedIcon);
+      }
     }
 
     draw_ui_element(fb, ListingUIElements::kUIBar);

@@ -15,5 +15,6 @@ std::tuple<Result, std::vector<u8>> read_entire_file(std::string const& absolute
 Result mkdirp(std::string const& absolute_path);
 
 bool file_exists(std::string const& absolute_filename);
+bool directory_exists(std::string const& absolute_path);
 
 #endif  // HOMEBREW_BROWSER_STORAGE_H_

@@ -60,6 +60,7 @@ std::array<ListingMetadata, 3> get_title_list_draw_state(
     }
     // TODO: Add author to ListingMetadata, so it can be assigned here.
     title.description = app_info.description;
+    title.owned = app_info.owned;
   }
 
   return visible_titles;
@@ -170,13 +171,13 @@ int main()
     if (state.filtered_list_dirty) {
       sort_homebrew_list(state);
       filter_homebrew_list(state);
-      download_smdh_for_page(kServer, get_title_list_cursor(state.filtered_homebrew_list,
+      update_metadata_for_page(kServer, get_title_list_cursor(state.filtered_homebrew_list,
           state.selected_index), state.app_info_for_current_page);
       state.filtered_list_dirty = false;
     }
 
     if (old_selected_index / 3 != state.selected_index / 3) {
-      download_smdh_for_page(kServer, 
+      update_metadata_for_page(kServer, 
           get_title_list_cursor(state.filtered_homebrew_list, state.selected_index), 
           state.app_info_for_current_page);
     }
