@@ -66,7 +66,7 @@ int start_http_request(string ip_address, string resource, int port) {
   }
 
   //craft a GET request
-  string message = "GET " + resource + " HTTP/1.1\r\n\r\n";
+  string message = "GET " + resource + " HTTP/1.1\r\nAccept: application/homebrew.browser-v0.1+text\r\n\r\n";
   int error = send(socket_desc, message.c_str(), message.size(), 0);
   if (error < 0) {
     debug_message("Error sending request!");
