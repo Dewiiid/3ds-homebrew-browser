@@ -51,6 +51,7 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
       draw_ui_element(fb, state.selected_title == 0 ? ListingUIElements::kTopRowDark : ListingUIElements::kTopRowLight);
       draw_raw_sprite(state.visible_titles[0].icon, fb, 61, 13, 48, 48);
       putnchar(fb, 123, 9, title_font, state.visible_titles[0].title.c_str(), state.visible_titles[0].title.size());
+      textbox(fb, 121, 20, 177, 49, 12, description_font, state.visible_titles[0].description);
       if (state.visible_titles[0].owned) {
         draw_ui_element(fb, ListingUIElements::kTopOwnedIcon);
       }
@@ -59,6 +60,7 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
       draw_ui_element(fb, state.selected_title == 1 ? ListingUIElements::kMiddleRowDark : ListingUIElements::kMiddleRowLight);
       draw_raw_sprite(state.visible_titles[1].icon, fb, 61, 84, 48, 48);
       putnchar(fb, 123, 80, title_font, state.visible_titles[1].title.c_str(), state.visible_titles[1].title.size());
+      textbox(fb, 121, 91, 177, 49, 12, description_font, state.visible_titles[1].description);
       if (state.visible_titles[1].owned) {
         draw_ui_element(fb, ListingUIElements::kMiddleOwnedIcon);
       }
@@ -67,6 +69,7 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
       draw_ui_element(fb, state.selected_title == 2 ? ListingUIElements::kBottomRowDark : ListingUIElements::kBottomRowLight);
       draw_raw_sprite(state.visible_titles[2].icon, fb, 61, 155, 48, 48);
       putnchar(fb, 123, 151, title_font, state.visible_titles[2].title.c_str(), state.visible_titles[2].title.size());
+      textbox(fb, 121, 162, 177, 49, 12, description_font, state.visible_titles[2].description);
       if (state.visible_titles[2].owned) {
         draw_ui_element(fb, ListingUIElements::kBottomOwnedIcon);
       }

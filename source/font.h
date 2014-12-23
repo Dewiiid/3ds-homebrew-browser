@@ -2,6 +2,8 @@
 #define HOMEBREW_BROWSER_FONT_H_
 
 #include <array>
+#include <vector>
+#include <string>
 
 #include <3ds.h>
 
@@ -30,5 +32,7 @@ void putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const* const s, u32 const n);
 
 u32 string_width(Font const& font, char const* const s, u32 const n);
+std::vector<std::string> word_wrap(Font const& font, std::string str, u32 width, u32 max_lines);
+void textbox(u8* fb, u32 x, u32 y, u32 width, u32 height, u32 spacing, Font const& font, std::string text);
 
 #endif  // HOMEBREW_BROWSER_FONT_H_
