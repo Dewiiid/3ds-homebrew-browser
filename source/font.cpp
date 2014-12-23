@@ -35,7 +35,9 @@ void putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
   for (u32 character_offset = 0; character_offset < n; ++character_offset) {
     char const c = s[character_offset];
     CharacterDescription const& character{font.offsets[c]};
-    putchar(framebuffer, x + horizontal_offset, y, font, c);
+    if (c != ' ') {
+      putchar(framebuffer, x + horizontal_offset, y, font, c);
+    }
     horizontal_offset += character.xa;
   }
 }
