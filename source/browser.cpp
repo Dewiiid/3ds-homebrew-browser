@@ -50,7 +50,7 @@ void update_download_status(string current_file, int file_index,
   draw_centered_string(fb, title_font, 70, "Currently Downloading:");
   draw_centered_string(fb, description_font, 90, current_file);
   draw_centered_string(fb, description_font, 110, "(" + 
-      string_from<int>(file_index) + "/" + string_from<int>(total_files) + ")");
+      string_from<int>(file_index + 1) + "/" + string_from<int>(total_files) + ")");
   
   draw_ui_element(fb, ListingUIElements::kProgressBarEmpty);
 
