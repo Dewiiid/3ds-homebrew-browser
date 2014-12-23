@@ -36,7 +36,7 @@ u32 write_file(std::string const& absolute_path, void* data, u32 byte_count) {
 std::tuple<Result, Handle> open_file_for_writing(std::string const& absolute_filename) {
   Result error{0};
   Handle file_handle;
-  error = FSUSER_OpenFile(NULL, &file_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_filename.c_str()), FS_OPEN_READ, 0);
+  error = FSUSER_OpenFile(NULL, &file_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_filename.c_str()), FS_OPEN_WRITE | FS_OPEN_CREATE, 0);
   return std::make_tuple(error, file_handle);
 }
 
