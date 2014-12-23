@@ -25,11 +25,14 @@ struct Font {
 
 extern Font const title_font;
 extern Font const description_font;
+extern Font const author_font;
 
 void putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const c);
 void putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const* const s, u32 const n);
+void putnchar_r(u8* const framebuffer, s32 const x, s32 const y,
+    Font const& font, char const* const s, u32 const n);
 
 u32 string_width(Font const& font, char const* const s, u32 const n);
 std::vector<std::string> word_wrap(Font const& font, std::string str, u32 width, u32 max_lines);

@@ -26,6 +26,7 @@ struct ListingMetadata {
   u8 const* icon;
   std::string title;
   std::string description;
+  std::string author;
   bool owned;
 };
 

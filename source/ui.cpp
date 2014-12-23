@@ -50,8 +50,9 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
     if (state.visible_titles[0].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 0 ? ListingUIElements::kTopRowDark : ListingUIElements::kTopRowLight);
       draw_raw_sprite(state.visible_titles[0].icon, fb, 61, 13, 48, 48);
-      putnchar(fb, 123,5, title_font, state.visible_titles[0].title.c_str(), state.visible_titles[0].title.size());
+      putnchar(fb, 121, 4, title_font, state.visible_titles[0].title.c_str(), state.visible_titles[0].title.size());
       textbox(fb, 121, 20, 177, 49, 12, description_font, state.visible_titles[0].description);
+      putnchar_r(fb, 296, 55, author_font, state.visible_titles[0].author.c_str(), state.visible_titles[0].author.size());
       if (state.visible_titles[0].owned) {
         draw_ui_element(fb, ListingUIElements::kTopOwnedIcon);
       }
@@ -59,8 +60,9 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
     if (state.visible_titles[1].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 1 ? ListingUIElements::kMiddleRowDark : ListingUIElements::kMiddleRowLight);
       draw_raw_sprite(state.visible_titles[1].icon, fb, 61, 84, 48, 48);
-      putnchar(fb, 123, 76, title_font, state.visible_titles[1].title.c_str(), state.visible_titles[1].title.size());
-      textbox(fb, 121, 91, 177, 49, 12, description_font, state.visible_titles[1].description);
+      putnchar(fb, 121, 75, title_font, state.visible_titles[1].title.c_str(), state.visible_titles[1].title.size());
+      textbox(fb, 121, 90, 177, 36, 12, description_font, state.visible_titles[1].description);
+      putnchar_r(fb, 296, 126, author_font, state.visible_titles[1].author.c_str(), state.visible_titles[1].author.size());
       if (state.visible_titles[1].owned) {
         draw_ui_element(fb, ListingUIElements::kMiddleOwnedIcon);
       }
@@ -68,8 +70,9 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
     if (state.visible_titles[2].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, state.selected_title == 2 ? ListingUIElements::kBottomRowDark : ListingUIElements::kBottomRowLight);
       draw_raw_sprite(state.visible_titles[2].icon, fb, 61, 155, 48, 48);
-      putnchar(fb, 123, 147, title_font, state.visible_titles[2].title.c_str(), state.visible_titles[2].title.size());
-      textbox(fb, 121, 162, 177, 49, 12, description_font, state.visible_titles[2].description);
+      putnchar(fb, 121, 146, title_font, state.visible_titles[2].title.c_str(), state.visible_titles[2].title.size());
+      textbox(fb, 121, 161, 177, 36, 12, description_font, state.visible_titles[2].description);
+      putnchar_r(fb, 296, 197, author_font, state.visible_titles[2].author.c_str(), state.visible_titles[2].author.size());
       if (state.visible_titles[2].owned) {
         draw_ui_element(fb, ListingUIElements::kBottomOwnedIcon);
       }

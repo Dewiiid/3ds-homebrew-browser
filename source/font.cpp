@@ -4,6 +4,7 @@
 
 #include "ubuntu_condensed_14pt_bin.h"
 #include "ubuntu_light_10pt_bin.h"
+#include "ubuntu_light_10pt_red_bin.h"
 
 #include <sstream>
 #include <deque>
@@ -14,6 +15,7 @@ extern std::array<CharacterDescription, 128> ubuntu_condensed_14pt_desc;
 
 Font const title_font{ubuntu_condensed_14pt_desc, ubuntu_condensed_14pt_bin};
 Font const description_font{ubuntu_light_10pt_desc, ubuntu_light_10pt_bin};
+Font const author_font{ubuntu_light_10pt_desc, ubuntu_light_10pt_red_bin};
 
 using std::string;
 using std::vector;
@@ -118,4 +120,10 @@ void textbox(u8* fb, u32 x, u32 y, u32 width, u32 height, u32 spacing, Font cons
     putnchar(fb, x, y, font, line.c_str(), line.size());
     y += spacing;
   }
+}
+
+void putnchar_r(u8* const framebuffer, s32 const x, s32 const y,
+    Font const& font, char const* const s, u32 const n) {
+  int adjusted_x = x - string_width(font, s, n);
+  putnchar(framebuffer, adjusted_x, y, font, s, n);
 }

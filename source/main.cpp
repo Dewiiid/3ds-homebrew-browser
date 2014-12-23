@@ -60,6 +60,7 @@ std::array<ListingMetadata, 3> get_title_list_draw_state(
     }
     // TODO: Add author to ListingMetadata, so it can be assigned here.
     title.description = app_info.description;
+    title.author = app_info.author;
     title.owned = app_info.owned;
   }
 
