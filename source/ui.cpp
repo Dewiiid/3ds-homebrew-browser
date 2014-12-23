@@ -61,26 +61,31 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
     //Populate rows with title information
     const u32 kRowOffset = 71;
     for (int row = 0; row < 3; row++) {
-      draw_raw_sprite(state.visible_titles[row].icon, fb, 
-          61, 13 + row * kRowOffset, 48, 48);
-      putnchar(fb, 121, 4 + row * kRowOffset, title_font,
-          state.visible_titles[row].title.c_str(),
-          state.visible_titles[row].title.size());
-      textbox(fb, 121, 20 + row * kRowOffset, 177, 49, 12, description_font, 
-          state.visible_titles[row].description);
-      putnchar_r(fb, 296, 55 + row * kRowOffset, author_font, 
-          state.visible_titles[row].author.c_str(), 
-          state.visible_titles[row].author.size());
+      if (state.visible_titles[row].displayed == ListingTitleDisplay::kVisible) {
+        draw_raw_sprite(state.visible_titles[row].icon, fb, 
+            61, 13 + row * kRowOffset, 48, 48);
+        putnchar(fb, 121, 4 + row * kRowOffset, title_font,
+            state.visible_titles[row].title.c_str(),
+            state.visible_titles[row].title.size());
+        textbox(fb, 121, 20 + row * kRowOffset, 177, 49, 12, description_font, 
+            state.visible_titles[row].description);
+        putnchar_r(fb, 296, 55 + row * kRowOffset, author_font, 
+            state.visible_titles[row].author.c_str(), 
+            state.visible_titles[row].author.size());
+      }
     }
 
     //Indicate owned titles (this is done last for layering reasions; we want this always on top)
-    if (state.visible_titles[0].owned) {
+    if (state.visible_titles[0].owned and 
+        state.visible_titles[0].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, ListingUIElements::kTopOwnedIcon);
     }
-    if (state.visible_titles[1].owned) {
+    if (state.visible_titles[1].owned and 
+        state.visible_titles[0].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, ListingUIElements::kMiddleOwnedIcon);
     }
-    if (state.visible_titles[2].owned) {
+    if (state.visible_titles[2].owned and 
+        state.visible_titles[0].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, ListingUIElements::kBottomOwnedIcon);
     }
 
