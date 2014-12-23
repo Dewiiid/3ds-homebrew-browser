@@ -29,4 +29,6 @@ void putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
 void putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const* const s, u32 const n);
 
+u32 string_width(Font const& font, char const* const s, u32 const n);
+
 #endif  // HOMEBREW_BROWSER_FONT_H_

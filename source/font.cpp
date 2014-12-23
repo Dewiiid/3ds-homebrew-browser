@@ -31,3 +31,12 @@ void putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     horizontal_offset += character.xa;
   }
 }
+
+u32 string_width(Font const& font, char const* const s, u32 const n) {
+  u32 width = 0;
+  for (u32 character_offset = 0; character_offset < n; character_offset++) {
+    char const c = s[character_offset];
+    width += font.offsets[c].xa;
+  }
+  return width;
+}
