@@ -156,7 +156,8 @@ std::map<string, string> read_http_header(int socket_desc) {
   return parse_http_header(string(g_response_header, g_header_length));
 }
 
-int read_http_content_into_file(int socket_desc, u32 content_length, std::string const& absolute_path) {
+int read_http_content_into_file(int socket_desc, u32 content_length, 
+    std::string const& absolute_path, std::function<void (int)> report) {
   //Open up the file, make sure that works!
   Result error;
   Handle file_handle;
@@ -189,6 +190,7 @@ int read_http_content_into_file(int socket_desc, u32 content_length, std::string
     FSFILE_Write(file_handle, &bytes_written, content_received, g_content_buffer, bytes_read, FS_WRITE_FLUSH);
     content_received += bytes_read;
     //debug_message(string_from<int>(content_received) + "/" + string_from<int>(content_length) + " " + absolute_path);
+    report(content_received * 100 / content_length);
   }
   FSFILE_Close(file_handle);
   return content_received;
@@ -369,7 +371,8 @@ tuple<Result, std::vector<u8>> http_get(string const& url) {
   */
 }
 
-Result download_to_file(std::string const& url, std::string const& absolute_path) {
+Result download_to_file(std::string const& url, std::string const& absolute_path,
+    std::function<void (int)> report) {
   url_components details = parse_url(url);
 
   // grab the header first
@@ -379,7 +382,7 @@ Result download_to_file(std::string const& url, std::string const& absolute_path
   if (header.count("Content-Length") > 0) {
     int content_length;
     std::istringstream(header["Content-Length"]) >> content_length;
-    int bytes_read = read_http_content_into_file(socket_desc, content_length, absolute_path);
+    int bytes_read = read_http_content_into_file(socket_desc, content_length, absolute_path, report);
     if (bytes_read != content_length) {
       debug_message("Content length mismatch! Possible error!");
     }

@@ -34,29 +34,28 @@ void prepare_download_window() {
   fx_darken_background(fb, 320*240);
 }
 
+void draw_centered_string(u8* fb, Font const& font, int y_pos, string str) {
+  u32 width = string_width(font, str.c_str(), str.size());
+  u32 x_pos = 160 - width / 2;
+  putnchar(fb, x_pos, y_pos, font, str.c_str(), str.size());
+}
+
 void update_download_status(string current_file, int file_index, 
-    int total_files) {
+    int total_files, int file_progress) {
   //first, draw a blank window
   u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
   draw_ui_element(fb, ListingUIElements::kDownloadWindow);
 
-  string header = "Currently Downloading:";
-  u32 header_width = string_width(title_font,
-      header.c_str(), header.size());
-  u32 current_file_width = string_width(description_font,
-      current_file.c_str(), current_file.size());
-  u32 header_position = 160 - (header_width / 2);
-  u32 current_file_position = 160 - (current_file_width / 2);
-
-  putnchar(fb, header_position, 70, title_font, header.c_str(), header.size());
-  putnchar(fb, current_file_position, 90, description_font,
-      current_file.c_str(), current_file.size());
-
+  draw_centered_string(fb, title_font, 70, "Currently Downloading:");
+  draw_centered_string(fb, description_font, 90, current_file);
+  draw_centered_string(fb, description_font, 110, "(" + 
+      string_from<int>(file_index) + "/" + string_from<int>(total_files) + ")");
+  
   draw_ui_element(fb, ListingUIElements::kProgressBarEmpty);
 
   //manual draw here
   UIElement const& data = g_listing_ui_elements[static_cast<size_t>(ListingUIElements::kProgressBarFull)];
-  draw_raw_sprite(data.image + 8, fb, data.x, data.y, file_index * 150 / total_files, 27);
+  draw_raw_sprite(data.image + 8, fb, data.x, data.y, file_progress * 150 / 100, 27);
 
   gfxFlushBuffers();
   gfxSwapBuffers();
@@ -80,15 +79,16 @@ Result download_app(std::string const& server, std::string const& title) {
     auto relative_path = title_file_listing[i];
     string server_path = "/3ds/" + title + "/" + relative_path;
     update_download_status(title + "/" + relative_path, i, 
-        title_file_listing.size());
-    /*
-    std::vector<u8> file_contents;
-    std::tie(error, file_contents) = http_get(server + server_path);
-    write_file("/3ds/" + appname + "/" + relative_path, 
-        &file_contents[0], file_contents.size());
-    */
+        title_file_listing.size(), 0);
+    gfxFlushBuffers();
+    gfxSwapBuffers();
+    
     mkdirp("/3ds/" + appname);
-    download_to_file(server + server_path, "/3ds/" + appname + "/" + relative_path);
+    download_to_file(server + server_path, "/3ds/" + appname + "/" + relative_path,
+      [&](int progress) {
+        update_download_status(title + "/" + relative_path, i, 
+          title_file_listing.size(), progress);
+      });
   }
   return error;
 }
