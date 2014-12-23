@@ -33,6 +33,13 @@ u32 write_file(std::string const& absolute_path, void* data, u32 byte_count) {
   return write_file(directory.c_str(), filename.c_str(), data, byte_count);
 }
 
+std::tuple<Result, Handle> open_file_for_writing(std::string const& absolute_filename) {
+  Result error{0};
+  Handle file_handle;
+  error = FSUSER_OpenFile(NULL, &file_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_filename.c_str()), FS_OPEN_READ, 0);
+  return std::make_tuple(error, file_handle);
+}
+
 // Attempt to make this directory, including all of its parent directories
 Result mkdirp(std::string const& absolute_path) {
   //split this path into its filename and its "parent" path

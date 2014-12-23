@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "storage.h"
 #include "util.h"
 #include "debug.h"
 
@@ -153,6 +154,44 @@ std::map<string, string> read_http_header(int socket_desc) {
   }
 
   return parse_http_header(string(g_response_header, g_header_length));
+}
+
+int read_http_content_into_file(int socket_desc, u32 content_length, std::string const& absolute_path) {
+  //Open up the file, make sure that works!
+  Result error;
+  Handle file_handle;
+  std::tie(error, file_handle) = open_file_for_writing(absolute_path);
+  if (error) {
+    return 0;  // bytes read was 0; we failed
+  }
+
+  u32 bytes_written = 0;
+  u32 content_received = 0;
+
+  // first things first, there might already be some content after the http
+  // header, so let's get that copied away
+  char* header_content_start = strstr(g_response_header, "\r\n\r\n") + 4;
+  int header_content_length = g_header_length - (header_content_start - g_response_header);
+  FSFILE_Write(file_handle, &bytes_written, content_received, header_content_start, header_content_length, FS_WRITE_FLUSH);
+  content_received += header_content_length;
+
+  while (content_received < content_length) {
+    int bytes_read = recv(socket_desc, g_content_buffer,
+        kContentBufferSize, 0);
+    if (bytes_read < 0) {
+      debug_message("Error reading response content!");
+      debug_message("Error code: " + string_from<signed int>(SOC_GetErrno()));
+      //close the file handle first!
+      FSFILE_Close(file_handle);
+      return -1;
+    }
+    //write this content out to file
+    FSFILE_Write(file_handle, &bytes_written, content_received, g_content_buffer, bytes_read, FS_WRITE_FLUSH);
+    content_received += bytes_read;
+    //debug_message(string_from<int>(content_received) + "/" + string_from<int>(content_length) + " " + absolute_path);
+  }
+  FSFILE_Close(file_handle);
+  return content_received;
 }
 
 int read_http_content_into_buffer(int socket_desc, int content_length) {
@@ -328,4 +367,30 @@ tuple<Result, std::vector<u8>> http_get(string const& url) {
   }
   return std::make_tuple(ret, buffer);
   */
+}
+
+Result download_to_file(std::string const& url, std::string const& absolute_path) {
+  url_components details = parse_url(url);
+
+  // grab the header first
+  int socket_desc = start_http_request(details.server, details.resource, details.port);
+  std::map<string, string> header = read_http_header(socket_desc);
+
+  if (header.count("Content-Length") > 0) {
+    int content_length;
+    std::istringstream(header["Content-Length"]) >> content_length;
+    int bytes_read = read_http_content_into_file(socket_desc, content_length, absolute_path);
+    if (bytes_read != content_length) {
+      debug_message("Content length mismatch! Possible error!");
+    }
+    close_connection(socket_desc);
+  }  else {
+    close_connection(socket_desc);
+    debug_message("Content-Length not found in response! Bailing...");
+    return -1;
+  }
+
+  //Success?
+  close_connection(socket_desc);
+  return 0;
 }

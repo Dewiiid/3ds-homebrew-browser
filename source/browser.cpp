@@ -49,14 +49,14 @@ void update_download_status(string current_file, int file_index,
   u32 current_file_position = 160 - (current_file_width / 2);
 
   putnchar(fb, header_position, 70, title_font, header.c_str(), header.size());
-  putnchar(fb, current_file_position, 90, description_font, 
+  putnchar(fb, current_file_position, 90, description_font,
       current_file.c_str(), current_file.size());
 
   draw_ui_element(fb, ListingUIElements::kProgressBarEmpty);
 
   //manual draw here
   UIElement const& data = g_listing_ui_elements[static_cast<size_t>(ListingUIElements::kProgressBarFull)];
-  draw_raw_sprite(data.image + 8, fb, data.x, data.y, file_index * 150 / total_files, 27);  
+  draw_raw_sprite(data.image + 8, fb, data.x, data.y, file_index * 150 / total_files, 27);
 
   gfxFlushBuffers();
   gfxSwapBuffers();
@@ -81,10 +81,14 @@ Result download_app(std::string const& server, std::string const& title) {
     string server_path = "/3ds/" + title + "/" + relative_path;
     update_download_status(title + "/" + relative_path, i, 
         title_file_listing.size());
+    /*
     std::vector<u8> file_contents;
     std::tie(error, file_contents) = http_get(server + server_path);
     write_file("/3ds/" + appname + "/" + relative_path, 
         &file_contents[0], file_contents.size());
+    */
+    mkdirp("/3ds/" + appname);
+    download_to_file(server + server_path, "/3ds/" + appname + "/" + relative_path);
   }
   return error;
 }
