@@ -38,6 +38,7 @@ enum class ListingScrollbarDisplay {
 struct ListingScrollbar {
   ListingScrollbarDisplay displayed;
   s32 percentage;
+  bool active;
 };
 
 enum class ListingSortOrder {
@@ -86,6 +87,7 @@ struct UIElement {
   ELEMENT(kUIBar, ui_bar_bin, 0, 216) \
   ELEMENT(kSortReversed, sort_reversed_bin, 265, 218) \
   ELEMENT(kScrollBar, scrollbar_bin, 304, 3) \
+  ELEMENT(kScrollBarActive, scrollbar_active_bin, 304, 3) \
   ELEMENT(kTopOwnedIcon, owned_icon_bin, 287, 6) \
   ELEMENT(kMiddleOwnedIcon, owned_icon_bin, 287, 77) \
   ELEMENT(kBottomOwnedIcon, owned_icon_bin, 287, 148) \

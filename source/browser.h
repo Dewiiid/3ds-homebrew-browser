@@ -41,6 +41,7 @@ struct AppInfo {
 struct BrowserState {
   u32 selected_index = 0;
   SelectedCategory selected_category = SelectedCategory::kNone;
+  bool scrollbar_active = true;
 
   TitleList full_homebrew_list;
   FilteredList filtered_homebrew_list;

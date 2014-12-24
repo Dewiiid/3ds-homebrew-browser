@@ -20,6 +20,7 @@
 #include "row_base_bin.h"
 #include "row_selected_bin.h"
 #include "scrollbar_bin.h"
+#include "scrollbar_active_bin.h"
 #include "sort_normal_bin.h"
 #include "sort_reversed_bin.h"
 #include "ui_bar_bin.h"
@@ -95,7 +96,9 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
     }
 
     if (state.scrollbar.displayed == ListingScrollbarDisplay::kVisible) {
-      UIElement const& data = g_listing_ui_elements[static_cast<size_t>(ListingUIElements::kScrollBar)];
+      UIElement const& data = g_listing_ui_elements[static_cast<size_t>(
+        state.scrollbar.active ? ListingUIElements::kScrollBarActive
+        : ListingUIElements::kScrollBar)];
       // Range is [3,153], total of 150 potential values
       // percentage / 100 = position / potential
       // percentage / 100 * potential = position

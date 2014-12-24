@@ -67,15 +67,16 @@ std::array<ListingMetadata, 3> get_title_list_draw_state(
   return visible_titles;
 }
 
-ListingScrollbar get_scrollbar_draw_state(FilteredListCursor const& cursor) {
+ListingScrollbar get_scrollbar_draw_state(FilteredListCursor const& cursor, bool active) {
   auto const list_size = std::distance(cursor.begin, cursor.end);
   auto const cursor_position = std::distance(cursor.begin, cursor.selected);
   if (list_size < 3) {
-    return {ListingScrollbarDisplay::kHidden, 0};
+    return {ListingScrollbarDisplay::kHidden, 0, active};
   }
   return {
       ListingScrollbarDisplay::kVisible,
-      100 * cursor_position / (list_size - 1)
+      100 * cursor_position / (list_size - 1),
+      active
     };
 }
 
@@ -189,7 +190,7 @@ int main()
           state.app_info_for_current_page),
       state.selected_index % 3,
       get_scrollbar_draw_state(
-          get_title_list_cursor(state.filtered_homebrew_list, state.selected_index)),
+          get_title_list_cursor(state.filtered_homebrew_list, state.selected_index), state.scrollbar_active),
       state.sort_order
     });
 
