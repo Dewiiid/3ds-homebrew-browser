@@ -161,13 +161,9 @@ int main()
   while (aptMainLoop())
   {
     gspWaitForVBlank();
-    hidScanInput();
-    u32 keys_down = hidKeysDown();
-    touchPosition touch_position;
-    hidTouchRead(&touch_position);
     
     u32 const old_selected_index = state.selected_index;
-    handle_input(keys_down, touch_position, state);
+    handle_input(state);
 
     if (state.filtered_list_dirty) {
       sort_homebrew_list(state);

@@ -74,7 +74,7 @@ void toggle_category(SelectedCategory touched_category, BrowserState& state) {
       SelectedCategory::kNone : touched_category, state);
 }
 
-void handle_touch_input(touchPosition const pos, BrowserState& state) {
+void handle_touch_regions(touchPosition const pos, BrowserState& state) {
   //UI Bar
   if (ui_element_touched(pos, ListingUIElements::kSortReversed)) {
     toggle_sort_order(state);
@@ -117,19 +117,82 @@ void handle_touch_input(touchPosition const pos, BrowserState& state) {
       base_index + 2 < state.filtered_homebrew_list.size()) {
     download_app(state.filtered_homebrew_list[base_index + 2]->server, 
           state.filtered_homebrew_list[base_index + 2]->path);
-  }
-
-  //Scrollbar
-  
-
-
-
-  
+  }  
 }
 
-void handle_input(u32 const keys_down, touchPosition const touch_position, BrowserState& state) {
+int scrollbar_height() {
+  return get_image_height(g_listing_ui_elements[static_cast<size_t>(
+      ListingUIElements::kScrollBar)].image) - 1; // account for shadow pixel
+}
+
+int scrollbar_width() {
+  return get_image_width(g_listing_ui_elements[static_cast<size_t>(
+      ListingUIElements::kScrollBar)].image) - 1; // account for shadow pixel
+}
+
+s32 const kScrollAreaTop = 3;
+s32 const kScrollAreaHeight = 210;
+int scrollbar_current_y(BrowserState& state) {
+  return kScrollAreaTop + (state.selected_index * 
+      (kScrollAreaHeight - scrollbar_height()) 
+      / (state.filtered_homebrew_list.size() - 1));
+}
+
+bool inside_scrollbar(BrowserState& state, touchPosition pos) {
+  UIElement const& data = g_listing_ui_elements[static_cast<size_t>(
+      ListingUIElements::kScrollBar)];
+  return region_touched(pos, data.x, scrollbar_current_y(state), 
+      scrollbar_width(), scrollbar_height());
+}
+
+void handle_touch_scrollbar(BrowserState& state, u32 keys_down, u32 keys_held, u32 keys_up, touchPosition const pos) {  
+  // this stores the stylus's initial touch position, so we can offset the
+  // behavior later; this makes grabbing the "top" or the "bottom" of the
+  // scrollbar work, and not feel janky.
+  static s32 touch_offset;
+  if (keys_down & KEY_TOUCH and inside_scrollbar(state, pos)) {
+    state.scrollbar_active = true;
+    touch_offset = pos.py - scrollbar_current_y(state);
+  }
+
+  // drag action; while the scrollbar is active, change the selected index
+  // based on the Y coordinate of the stylus
+  if (keys_held & KEY_TOUCH and state.scrollbar_active) {
+    s32 scrolled_index = (pos.py - kScrollAreaTop - touch_offset) 
+        * (signed)state.filtered_homebrew_list.size() / 150;
+
+    debug_message("before " + string_from<s32>(scrolled_index));
+    debug_message("offset " + string_from<s32>(touch_offset));
+
+    if (scrolled_index >= (signed)state.filtered_homebrew_list.size()) {
+      scrolled_index = state.filtered_homebrew_list.size() - 1;
+    }
+    if (scrolled_index < 0) {
+      scrolled_index = 0;
+    }
+
+    debug_message("after " + string_from<s32>(scrolled_index));
+
+    state.selected_index = scrolled_index;
+  }
+
+  if (keys_up & KEY_TOUCH) {
+    state.scrollbar_active = false;
+  }
+}
+
+void handle_input(BrowserState& state) {
+  hidScanInput();
+  u32 keys_down = hidKeysDown();
+  u32 keys_held = hidKeysHeld();
+  u32 keys_up = hidKeysUp();
+  touchPosition touch_position;
+  hidTouchRead(&touch_position);
+
   handle_button_input(keys_down, state);
   if (keys_down and KEY_TOUCH) {
-    handle_touch_input(touch_position, state);
+    handle_touch_regions(touch_position, state);
   }
+
+  handle_touch_scrollbar(state, keys_down, keys_held, keys_up, touch_position);
 }
