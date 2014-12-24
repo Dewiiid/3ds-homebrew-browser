@@ -75,9 +75,16 @@ void toggle_category(SelectedCategory touched_category, BrowserState& state) {
 }
 
 void handle_touch_input(touchPosition const pos, BrowserState& state) {
+  //UI Bar
   if (ui_element_touched(pos, ListingUIElements::kSortReversed)) {
     toggle_sort_order(state);
   }
+  //Home Button
+  if (region_touched(pos, 292, 219, 28, 21)) {
+    aptSetStatus(APP_EXITING);
+  }
+
+  //Categories
   if (ui_element_touched(pos, ListingUIElements::kGamesDark)) {
     toggle_category(SelectedCategory::kGames, state);
   }
