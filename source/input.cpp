@@ -101,6 +101,27 @@ void handle_touch_input(touchPosition const pos, BrowserState& state) {
     toggle_category(SelectedCategory::kMisc, state);
   }
 
+  //App Rows - touching one initiates a download
+  u32 base_index = state.selected_index - (state.selected_index % 3);
+  if (ui_element_touched(pos, ListingUIElements::kTopRowLight) and
+      base_index < state.filtered_homebrew_list.size()) {
+    download_app(state.filtered_homebrew_list[base_index]->server, 
+          state.filtered_homebrew_list[base_index]->path);
+  }
+  if (ui_element_touched(pos, ListingUIElements::kMiddleRowLight) and
+      base_index + 1 < state.filtered_homebrew_list.size()) {
+    download_app(state.filtered_homebrew_list[base_index + 1]->server, 
+          state.filtered_homebrew_list[base_index + 1]->path);
+  }
+  if (ui_element_touched(pos, ListingUIElements::kBottomRowLight) and
+      base_index + 2 < state.filtered_homebrew_list.size()) {
+    download_app(state.filtered_homebrew_list[base_index + 2]->server, 
+          state.filtered_homebrew_list[base_index + 2]->path);
+  }
+
+  //Scrollbar
+  
+
 
 
   

@@ -81,11 +81,11 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
       draw_ui_element(fb, ListingUIElements::kTopOwnedIcon);
     }
     if (state.visible_titles[1].owned and 
-        state.visible_titles[0].displayed == ListingTitleDisplay::kVisible) {
+        state.visible_titles[1].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, ListingUIElements::kMiddleOwnedIcon);
     }
     if (state.visible_titles[2].owned and 
-        state.visible_titles[0].displayed == ListingTitleDisplay::kVisible) {
+        state.visible_titles[2].displayed == ListingTitleDisplay::kVisible) {
       draw_ui_element(fb, ListingUIElements::kBottomOwnedIcon);
     }
 
