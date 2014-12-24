@@ -189,9 +189,14 @@ void handle_input(BrowserState& state) {
   touchPosition touch_position;
   hidTouchRead(&touch_position);
 
-  handle_button_input(keys_down, state);
-  if (keys_down and KEY_TOUCH) {
-    handle_touch_regions(touch_position, state);
+  // Scrolling while doing other things is fiddly and not working very
+  // well, so make sure other inputs are ignored until the user lets
+  // go of the scrollbar. (TODO later: investigate why this was crashing?)
+  if (!state.scrollbar_active) {
+    handle_button_input(keys_down, state);
+    if (keys_down and KEY_TOUCH) {
+      handle_touch_regions(touch_position, state);
+    }
   }
 
   handle_touch_scrollbar(state, keys_down, keys_held, keys_up, touch_position);
