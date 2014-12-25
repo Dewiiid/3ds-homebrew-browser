@@ -18,7 +18,7 @@ presently hard-coded and rely on these paths existing.
 The basic use of the browser is via the `+Pad` or `OPad` and the `A` button. Use
 the pad to navigate up and down the list, and the `A` button to download the
 highlighted app. The `L` and `R` buttons filter by category - they are games,
-media, emulators, utility, and miscelaneous. `Select` will change the sort
+media, emulators, utility, and miscellaneous. `Select` will change the sort
 order. `X` opens the debug console on the top screen.
 
 Similarly, the main controls can be touched as well - to navigate, drag the
@@ -52,7 +52,7 @@ potential issue.
 
 ## Building
 
-There is a `Dockerfile` available, which will set up the devlopment environment
+There is a `Dockerfile` available, which will set up the development environment
 using Docker. If you prefer to get set up manually, you'll need devkitARM r43
 and a recent ctrulib - this was developed against a recent pull of its master
 branch.
