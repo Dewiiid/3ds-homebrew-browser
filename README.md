@@ -90,4 +90,4 @@ license are in `assets/fonts`.
 * zeta0134 for development on both the client and server
 * smealum, fincs, and gemisis for the SMDH reading code, which was taken from
   the Homebrew Menu/Launcher
-* smealum, whose code was used as a basis for the fnt file conterter
+* smealum, whose code was used as a basis for the fnt file converter
