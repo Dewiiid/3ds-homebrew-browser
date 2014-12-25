@@ -77,7 +77,7 @@ quite right, please open an issue there and we'll take a look at it.
 
 ## License
 
-The license for the source is a standard BDS 3-clause license with an additional
+The license for the source is a standard BSD 3-clause license with an additional
 clause to make explicit our desire that this software not be used for piracy.
 The full license, including additional clause, is in the `LICENSE` file.
 
