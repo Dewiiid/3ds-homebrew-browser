@@ -28,8 +28,10 @@ scroll bar. To download a title, tap on it.
 
 Presently, the server's source is not yet available, but if you would like your
 app to show up in the browser, please send an email to
-zeta0134@darknovagames.com. Similarly, if you've added an app and would like to
-remove it, please send an email to the same address stating that.
+zeta0134@darknovagames.com. We may add apps that are licensed with GPL or other
+distribution-friendly licensing automatically; if it's popular and announced
+publically, we'll probably add it for you. If you would like your app removed
+or some detail about its listing changed, don't hesitate to contact us.
 
 ## Warning - this is early stage software!
 
@@ -40,8 +42,8 @@ particularly regarding network operations.
 
 The early nature of this software also means that while, theoretically, the
 Homebrew Browser should be able to download itself to upgrade to newer versions,
-the API may change break backwards compatibility, requiring a manual upgrade. We
-will try to avoid this until the API solidifies, but until then, this is a
+the API may change, breaking backwards compatibility, requiring a manual upgrade. 
+We will try to avoid this until the API solidifies, but until then, this is a
 potential issue.
 
 ## Planned features
@@ -90,4 +92,4 @@ license are in `assets/fonts`.
 * zeta0134 for development on both the client and server
 * smealum, fincs, and gemisis for the SMDH reading code, which was taken from
   the Homebrew Menu/Launcher
-* smealum, whose code was used as a basis for the fnt file converter
+* smealum, whose code was used as a basis for the font file converter
