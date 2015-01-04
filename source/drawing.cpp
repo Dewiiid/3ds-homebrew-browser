@@ -62,8 +62,37 @@ void draw_solid_background(u8* framebuffer, u32 pixel_count, u8 r, u8 g, u8 b) {
   }
 }
 
-void fx_darken_background(u8* framebuffer, u32 pixels) {
+void fx::darken_background(u8* framebuffer, u32 pixels) {
   for (u8* color = framebuffer; color < framebuffer + pixels * 3; color++) {
     *color = *color >> 1;
+  }
+}
+
+void fx::fade_to_black() {
+  for (int i = 0; i < 16; i++) {
+    gspWaitForVBlank();
+    for (int j = 0; j < 2; j++) {
+      // fade top screen to black
+      u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
+      for (u8* color = fb; color < fb + 400 * 240 * 3; color++) {
+        if (*color > 16) {
+          *color = *color - 16;
+        } else {
+          *color = 0;
+        }
+      }
+      // fade bottom screen to black
+      fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+      for (u8* color = fb; color < fb + 320 * 240 * 3; color++) {
+        if (*color > 16) {
+          *color = *color - 16;
+        } else {
+          *color = 0;
+        }
+      }
+
+      gfxFlushBuffers();
+      gfxSwapBuffers();
+    }
   }
 }

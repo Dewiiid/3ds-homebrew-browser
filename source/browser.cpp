@@ -27,11 +27,11 @@ void initialize_smdh_cache() {
 void prepare_download_window() {
   //Prepare the framebuffers by darkening both of them
   u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
-  fx_darken_background(fb, 320*240);
+  fx::darken_background(fb, 320*240);
   gfxFlushBuffers();
   gfxSwapBuffers();
   fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
-  fx_darken_background(fb, 320*240);
+  fx::darken_background(fb, 320*240);
 }
 
 void draw_centered_string(u8* fb, Font const& font, int y_pos, string str) {

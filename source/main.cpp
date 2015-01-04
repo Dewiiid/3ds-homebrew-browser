@@ -85,35 +85,6 @@ void initialize_sockets() {
   debug_message(string_from<unsigned int>(ret));
 }
 
-void fade_to_black() {
-  for (int i = 0; i < 16; i++) {
-    gspWaitForVBlank();
-    for (int j = 0; j < 2; j++) {
-      // fade top screen to black
-      u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
-      for (u8* color = fb; color < fb + 400 * 240 * 3; color++) {
-        if (*color > 16) {
-          *color = *color - 16;
-        } else {
-          *color = 0;
-        }
-      }
-      // fade bottom screen to black
-      fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
-      for (u8* color = fb; color < fb + 320 * 240 * 3; color++) {
-        if (*color > 16) {
-          *color = *color - 16;
-        } else {
-          *color = 0;
-        }
-      }
-
-      gfxFlushBuffers();
-      gfxSwapBuffers();
-    }
-  }
-}
-
 int main()
 {
   // Initialize services
@@ -146,16 +117,6 @@ int main()
   std::tie(error, state.full_homebrew_list) = get_homebrew_listing(kServer);
 
   debug_message("Downloaded " + string_from<int>(state.full_homebrew_list.size()) + " titles!");
-
-  mkdirp("/this/is/a/test/thing");
-
-  if (file_exists("/path/to/nonexistant/thing")) {
-    debug_message("/path/to/nonexistant/thing exists!");
-  }
-
-  if (file_exists("/3ds/homebrew-browser/homebrew-browser.3dsx")) {
-    debug_message("/3ds/homebrew-browser/homebrew-browser.3dsx");
-  }
 
   // Main loop
   while (aptMainLoop())
@@ -194,7 +155,7 @@ int main()
     gfxFlushBuffers();
     gfxSwapBuffers();
   }
-  fade_to_black();
+  fx::fade_to_black();
 
   // Exit services
   SOC_Shutdown();
