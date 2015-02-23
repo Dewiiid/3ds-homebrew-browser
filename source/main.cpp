@@ -131,7 +131,7 @@ int main()
   //*/
 
   //test out hostname stuff
-  //*
+  /*
   string hostname = "google.com";
   debug_message("Looking up " + hostname);
   string ip_address = hostname_to_ip(hostname);

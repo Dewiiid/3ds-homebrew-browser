@@ -15,6 +15,6 @@ std::tuple<Result, std::vector<std::string>> download_and_split_on_newlines(std:
 
 std::tuple<Result, std::vector<u8>> http_get(std::string const& url);
 Result download_to_file(std::string const& url, std::string const& absolute_path, std::function<void (int)> report);
-std::string hostname_to_ip(std::string hostname);
+//std::string hostname_to_ip(std::string hostname);
 
 #endif  // HOMEBREW_BROWSER_HTTP_H_
