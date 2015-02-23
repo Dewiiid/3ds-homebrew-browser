@@ -10,9 +10,13 @@
 std::string string_from_bytes(std::vector<u8> const& v);
 
 template<typename T>
-std::string string_from(T const& value) {
+std::string string_from(T const& value, bool usehex = false) {
   std::ostringstream ss;
-  ss << value;
+  if (usehex) {
+    ss << "0x" << std::hex << value;
+  } else {
+    ss << value;
+  }
   return ss.str();
 }
 

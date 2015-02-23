@@ -81,8 +81,16 @@ ListingScrollbar get_scrollbar_draw_state(FilteredListCursor const& cursor, bool
 }
 
 void initialize_sockets() {
-  u32 ret = SOC_Initialize((u32*)memalign(0x1000, 0x100000), 0x100000);
-  debug_message(string_from<unsigned int>(ret));
+  u32* bank = (u32*)memalign(0x1000, 0x48000);
+  if (bank == nullptr) {
+    debug_message("memalign failed");
+    return;
+  }
+
+  u32 ret = SOC_Initialize(bank, 0x48000);
+  if (ret) {
+    debug_message("Error initializing sockets: " + string_from<u32>(ret, true));
+  }
 }
 
 int main()
@@ -91,32 +99,54 @@ int main()
   srvInit();
   aptInit();
   hidInit(NULL);
-  gfxInit();  
+  gfxInitDefault();
   fsInit();
   httpcInit();
   initialize_storage();
+
+  consoleInit(GFX_TOP, nullptr);
   initialize_sockets();
 
   initialize_smdh_cache();
 
   // throw our title onscreen (todo: make this part of UI maybe? It's
   // totally static for now)
+
+  /*
   u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
   draw_sprite(title_screen_bin, fb, 0, 0);
   gfxFlushBuffers();
   gfxSwapBuffers();
   fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
   draw_sprite(title_screen_bin, fb, 0, 0);
+  //*/
+
   
-
-  //consoleInit(GFX_TOP, nullptr);
-  debug_message("Downloading homebrew list...");
-
   BrowserState state;
   Result error{0};
+  //*
+  debug_message("Downloading homebrew list...");
   std::tie(error, state.full_homebrew_list) = get_homebrew_listing(kServer);
-
   debug_message("Downloaded " + string_from<int>(state.full_homebrew_list.size()) + " titles!");
+  //*/
+
+  //test out hostname stuff
+  //*
+  string hostname = "google.com";
+  debug_message("Looking up " + hostname);
+  string ip_address = hostname_to_ip(hostname);
+  debug_message("Got: " + ip_address + " for " + hostname);
+
+  hostname = "darknovagames.com";
+  debug_message("Looking up " + hostname);
+  ip_address = hostname_to_ip(hostname);
+  debug_message("Got: " + ip_address + " for " + hostname);
+
+  hostname = "homebrewbrowser.darknovagames.com";
+  debug_message("Looking up " + hostname);
+  ip_address = hostname_to_ip(hostname);
+  debug_message("Got: " + ip_address + " for " + hostname);
+  //*/
 
   // Main loop
   while (aptMainLoop())

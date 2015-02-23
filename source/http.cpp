@@ -10,6 +10,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <netdb.h>
+#include <errno.h>
 
 #include "storage.h"
 #include "util.h"
@@ -26,6 +28,31 @@ const int kContentBufferSize = 2 * 1024 * 1024;  // 2 MB
 u8 g_content_buffer[kContentBufferSize];
 int g_content_length;
 
+struct url_components {
+  string protocol;
+  string hostname;
+  string server;
+  int port;
+  string resource;
+};
+
+string hostname_to_ip(string hostname) {
+  hostent* he;
+  he = gethostbyname(hostname.c_str());
+  if (he == nullptr) {
+    debug_message("DNS Lookup Failed: " + hostname);
+    return hostname;
+  }
+
+  if (he->h_addr_list[0] != nullptr) {
+    in_addr** host_address_list = reinterpret_cast<in_addr**>(he->h_addr_list);
+    return string(inet_ntoa(*host_address_list[0]));
+  }
+
+  debug_message("Host not found: " + hostname);
+  return hostname;
+}
+
 int init_connection(string ip_address, u16 port) {
   sockaddr_in server;
   server.sin_addr.s_addr = inet_addr(ip_address.c_str());
@@ -38,14 +65,14 @@ int init_connection(string ip_address, u16 port) {
   socket_desc = socket(AF_INET, SOCK_STREAM, 0);
   if (socket_desc == -1) {
     debug_message("Could not create socket!");
-    debug_message("Error code: " + string_from<signed int>(SOC_GetErrno()));
+    debug_message("Error code: " + string_from<signed int>(errno));
     return -1;
   }
 
   int error = connect(socket_desc, (sockaddr*)&server, sizeof(server));
   if (error < 0) {
     debug_message("Connection failed!");
-    debug_message("Error code: " + string_from<signed int>(SOC_GetErrno()));
+    debug_message("Error code: " + string_from<signed int>(errno));
     return -1;
   }
 
@@ -57,20 +84,21 @@ void close_connection(int socket_desc) {
 }
 
 //Returns a socket descriptor on success, or -1 on failure.
-int start_http_request(string ip_address, string resource, int port) {
+int start_http_request(url_components request) {
   //open up a socket
-  int socket_desc = init_connection(ip_address, port);
+  int socket_desc = init_connection(request.server, request.port);
   if (socket_desc < 0) {
-    debug_message("Error initializing connection: " + string_from<unsigned int>(SOC_GetErrno()));
+    debug_message("Error initializing connection: " + string_from<unsigned int>(errno));
     return -1;
   }
 
   //craft a GET request
-  string message = "GET " + resource + " HTTP/1.1\r\nAccept: application/homebrew.browser-v0.1+text\r\n\r\n";
+  string message = "GET " + request.resource + " HTTP/1.0\r\nAccept: application/homebrew.browser-v0.1+text\r\nHost: " + request.hostname + "\r\n\r\n";
+  debug_message(message);
   int error = send(socket_desc, message.c_str(), message.size(), 0);
   if (error < 0) {
     debug_message("Error sending request!");
-    debug_message("Error code: " + string_from<signed int>(SOC_GetErrno()));
+    debug_message("Error code: " + string_from<signed int>(errno));
     return -1;
   }
 
@@ -92,6 +120,7 @@ std::map<string, string> parse_http_header(string raw_header) {
   // TODO: maybe bail if the status code isn't 200?
   if (raw_header.find("\r\n") != string::npos) {
     string status_code = raw_header.substr(0, raw_header.find("\r\n"));
+    debug_message("status: " + status_code);
     raw_header = raw_header.substr(status_code.size() + 2);
     string protocol;
     int response_code;
@@ -128,7 +157,7 @@ std::map<string, string> parse_http_header(string raw_header) {
       string value = line.substr(key.size() + 2);
       header_pairs[key] = value;
       //debug_message("HTTP Header:");
-      //debug_message(key + " --> " + value);
+      debug_message(key + " --> " + value);
     }
   }
   return header_pairs;
@@ -147,7 +176,7 @@ std::map<string, string> read_http_header(int socket_desc) {
     //debug_message("Read " + string_from<int>(bytes_read) + " bytes in header!");
     if (bytes_read < 0) {
       debug_message("Error reading response header!");
-      debug_message("Error code: " + string_from<signed int>(SOC_GetErrno()));
+      debug_message("Error code: " + string_from<signed int>(errno));
       return std::map<string, string>();
     }
     g_header_length += bytes_read;
@@ -183,7 +212,7 @@ int read_http_content_into_file(int socket_desc, u32 content_length,
         kContentBufferSize, 0);
     if (bytes_read < 0) {
       debug_message("Error reading response content!");
-      debug_message("Error code: " + string_from<signed int>(SOC_GetErrno()));
+      debug_message("Error code: " + string_from<signed int>(errno));
       //close the file handle first!
       FSFILE_Close(file_handle);
       return -1;
@@ -230,7 +259,7 @@ int read_http_content_into_buffer(int socket_desc, int content_length) {
         kContentBufferSize - g_content_length, 0);
     if (bytes_read < 0) {
       debug_message("Error reading response content!");
-      debug_message("Error code: " + string_from<signed int>(SOC_GetErrno()));
+      debug_message("Error code: " + string_from<signed int>(errno));
       return -1;
     }
 
@@ -304,13 +333,6 @@ tuple<Result, std::vector<u8>> http_download(httpcContext& context) {
   return std::make_tuple(0, buffer);
 }
 
-struct url_components {
-  string protocol;
-  string server;
-  int port;
-  string resource;
-};
-
 // note: expects a well formed URL. Mal-formed URLs are likely to cause
 // undefined behavior.
 url_components parse_url(string url) {
@@ -319,16 +341,18 @@ url_components parse_url(string url) {
   result.protocol = url.substr(0, url.find("://"));
   url = url.substr(result.protocol.size() + 3);
 
-  result.server = url.substr(0, url.find("/"));
-  url = url.substr(result.server.size() + 1);
+  result.hostname = url.substr(0, url.find("/"));
+  url = url.substr(result.hostname.size() + 1);
 
   //attempt to parse out a port number, if it exists
   result.port = 80;
-  if (result.server.find(":") < result.server.npos) {
-    string str_port = result.server.substr(result.server.find(":") + 1);
+  if (result.hostname.find(":") < result.hostname.npos) {
+    string str_port = result.hostname.substr(result.hostname.find(":") + 1);
     std::istringstream(str_port) >> result.port;
-    result.server = result.server.substr(0, result.server.find(":"));
+    result.hostname = result.hostname.substr(0, result.hostname.find(":"));
   }
+  //attempt a hostname lookup, to resolve domain names
+  result.server = hostname_to_ip(result.hostname);
 
   //finally, what remains is the resource itself
   result.resource = "/" + url;
@@ -339,7 +363,7 @@ tuple<Result, std::vector<u8>> http_get(string const& url) {
   url_components details = parse_url(url);
 
   // grab the header first
-  int socket_desc = start_http_request(details.server, details.resource, details.port);
+  int socket_desc = start_http_request(details);
   std::map<string, string> header = read_http_header(socket_desc);
 
   // using the header details, figure out the content length and read that
@@ -391,7 +415,7 @@ Result download_to_file(std::string const& url, std::string const& absolute_path
   url_components details = parse_url(url);
 
   // grab the header first
-  int socket_desc = start_http_request(details.server, details.resource, details.port);
+  int socket_desc = start_http_request(details);
   std::map<string, string> header = read_http_header(socket_desc);
 
   if (header.count("Content-Length") > 0) {

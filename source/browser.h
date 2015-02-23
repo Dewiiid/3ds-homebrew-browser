@@ -9,7 +9,8 @@
 
 #include "ui.h"
 
-std::string const kServer = "http://23.21.136.4:1337";
+//std::string const kServer = "http://23.21.136.4:1337";
+std::string const kServer = "http://homebrewbrowser.darknovagames.com";
 
 struct Title {
   std::string path;
