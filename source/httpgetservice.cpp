@@ -6,30 +6,7 @@ u32 const kUnknownRequestSize = 0;
 u32 const kUnknownHttpStatus = 0;
 u32 const kDontWait = 0;
 
-const u32 kHttpBufferSize = 16384;
-
-Result HTTPC_ReceiveDataTimeout(Handle handle, Handle contextHandle, u8* buffer, u32 size, u64 timeout)
-{
-  u32* cmdbuf=getThreadCommandBuffer();
-
-  cmdbuf[0]=0x000C0102; //request header code
-  cmdbuf[1]=contextHandle;
-  cmdbuf[2]=size;
-  cmdbuf[3]=timeout & 0xFFFFFFFF;
-  cmdbuf[4]=(timeout & 0xFFFFFFFF00000000) >> 32;
-  cmdbuf[5]=(size<<4)|12;
-  cmdbuf[6]=(u32)buffer;
-  
-  Result ret=0;
-  if((ret=svcSendSyncRequest(handle)))return ret;
-
-  return cmdbuf[1];
-}
-
-Result httpcReceiveDataTimeout(httpcContext *context, u8* buffer, u32 size, u64 timeout)
-{
-  return HTTPC_ReceiveDataTimeout(context->servhandle, context->httphandle, buffer, size, timeout);
-}
+const u32 kHttpBufferSize = 32768;
 
 HttpGetRequestState& request_error(HttpGetRequestState& state, HttpGetRequestError error) {
   switch (error) {
@@ -56,6 +33,12 @@ HttpGetRequestState& request_error(HttpGetRequestState& state, HttpGetRequestErr
   }
   state.error = error;
   state.finished = true;
+
+  // Try to close our open http context. (Don't panic if that fails either.)
+  // This is to avoid leaking contexts in the case of an error, which is bound
+  // to occur from time to time just due to network shenanigans  
+  httpcCloseContext(&state.context);
+
   return state;
 }
 
@@ -72,7 +55,9 @@ HttpGetRequestState InitiateRequest(std::string const& url,
   Result ret = httpcOpenContext(&state.context, const_cast<char*>(url.c_str()),
     0);
   if (ret) {
-    return request_error(state, HttpGetRequestError::kCouldntAllocateContext);
+    state.error = HttpGetRequestError::kCouldntBeginReqest;
+    state.finished = true;
+    debug_message("Couldn't allocate context!");
     return state;
   }
 
@@ -136,7 +121,7 @@ HttpGetRequestState ProcessRequest(HttpGetRequestState const& old_state) {
   }
 
   // Request data, up to the size of the buffer
-  ret = httpcReceiveDataTimeout (&state.context, g_http_buffer, kHttpBufferSize, 70 * 1000000); // milliseconds * nanosecond multiplier
+  ret = httpcReceiveData(&state.context, g_http_buffer, kHttpBufferSize);
   if (ret == 0 or (u32)ret == HTTPC_RESULTCODE_DOWNLOADPENDING) {
     u32 old_size = state.response.current_size;
     ret = httpcGetDownloadSizeState(&state.context, &state.response.current_size, NULL);
