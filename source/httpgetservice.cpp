@@ -6,7 +6,7 @@ u32 const kUnknownRequestSize = 0;
 u32 const kUnknownHttpStatus = 0;
 u32 const kDontWait = 0;
 
-const u32 kHttpBufferSize = 32768;
+const u32 kHttpBufferSize = 1024;
 
 HttpGetRequestState& request_error(HttpGetRequestState& state, HttpGetRequestError error) {
   switch (error) {
@@ -55,7 +55,7 @@ HttpGetRequestState InitiateRequest(std::string const& url,
   Result ret = httpcOpenContext(&state.context, const_cast<char*>(url.c_str()),
     0);
   if (ret) {
-    state.error = HttpGetRequestError::kCouldntBeginReqest;
+    state.error = HttpGetRequestError::kCouldntAllocateContext;
     state.finished = true;
     debug_message("Couldn't allocate context!");
     return state;
