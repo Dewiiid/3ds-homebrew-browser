@@ -1,12 +1,14 @@
 #include "httpgetservice.h"
 
 #include "debug.h"
+#include "util.h"
 
 u32 const kUnknownRequestSize = 0;
 u32 const kUnknownHttpStatus = 0;
 u32 const kDontWait = 0;
 
 const u32 kHttpBufferSize = 1024;
+u8 g_http_buffer[kHttpBufferSize];
 
 HttpGetRequestState& request_error(HttpGetRequestState& state, HttpGetRequestError error) {
   switch (error) {
@@ -70,7 +72,28 @@ HttpGetRequestState InitiateRequest(std::string const& url,
   return state;
 }
 
-u8 g_http_buffer[kHttpBufferSize];
+HttpGetRequestState& RetrieveDownloadStatus(HttpGetRequestState& state) {
+  Result ret = httpcGetResponseStatusCode(&state.context, &state.status_code_,
+      kDontWait);
+  if (ret) {
+    debug_message("Failed to retrieve status code!");
+    return request_error(state, HttpGetRequestError::kBadStatusCode);
+  }
+
+  // If we received any status code other than 200, bail.
+  if (state.status_code_ != 200) {
+    debug_message("Status code: " + string_from<u32>(state.status_code_));
+    return request_error(state, HttpGetRequestError::kBadStatusCode);
+  }
+
+  // Update the expected size of the download here (for reporting)
+  ret = httpcGetDownloadSizeState(&state.context, NULL,
+      &state.response.expected_size);
+  if (ret) {
+    return request_error(state, HttpGetRequestError::kBadDownloadSize);
+  }
+  return state;
+}
 
 HttpGetRequestState ProcessRequest(HttpGetRequestState const& old_state) {
   Result ret;
@@ -92,32 +115,13 @@ HttpGetRequestState ProcessRequest(HttpGetRequestState const& old_state) {
     return request_error(state, HttpGetRequestError::kBadRequestState);
   }
   if (status == httpcReqStatus::HTTPCREQSTAT_INPROGRESS_REQSENT) {
-    debug_message("Not here yet..");
+    // debug_message("Not here yet..");
     return state;
   }
 
   // If we still don't have a status code, attempt to grab it.
   if (state.status_code_ == kUnknownHttpStatus) {
-    Result ret = httpcGetResponseStatusCode(&state.context, &state.status_code_,
-        kDontWait);
-    if (ret) {
-      debug_message("Failed to retrieve status code!");
-      return request_error(state, HttpGetRequestError::kBadStatusCode);
-    }
-
-    // If we received any status code other than 200, bail.
-    if (state.status_code_ != 200) {
-      debug_message("Status code: " + string_from<u32>(state.status_code_));
-      return request_error(state, HttpGetRequestError::kBadStatusCode);
-    }
-
-    // Update the expected size of the download here (for reporting)
-    ret = httpcGetDownloadSizeState(&state.context, NULL,
-        &state.response.expected_size);
-    if (ret) {
-      return request_error(state, HttpGetRequestError::kBadDownloadSize);
-    }
-    debug_message("Got expected size: " + string_from<u32>(state.response.expected_size));
+    return RetrieveDownloadStatus(state);
   }
 
   // Request data, up to the size of the buffer
