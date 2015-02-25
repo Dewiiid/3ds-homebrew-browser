@@ -183,8 +183,13 @@ tuple<Result, std::vector<u8>> http_get(string const& url) {
 Result download_to_file(std::string const& url, std::string const& absolute_path, std::function<void (int)> report) {
   Result ret;
   std::vector<u8> data;
+  report(0);
+
   std::tie(ret, data) = http_get(url);
+  report(50);
 
   write_file(absolute_path, &data[0], data.size());
+  report(100);  
+  
   return ret;
 }

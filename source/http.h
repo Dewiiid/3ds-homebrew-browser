@@ -14,7 +14,7 @@ std::tuple<Result, std::vector<std::string>> get_file_listing_for_title(std::str
 std::tuple<Result, std::vector<std::string>> download_and_split_on_newlines(std::string const& url);
 
 std::tuple<Result, std::vector<u8>> http_get(std::string const& url);
-Result download_to_file(std::string const& url, std::string const& absolute_path, std::function<void (int)> report);
+Result download_to_file(std::string const& url, std::string const& absolute_path, std::function<void(int)> report);
 //std::string hostname_to_ip(std::string hostname);
 
 #endif  // HOMEBREW_BROWSER_HTTP_H_
