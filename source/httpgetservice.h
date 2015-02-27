@@ -17,6 +17,7 @@ enum class HttpGetRequestError {
   kBadRequestState,
   kBadDownloadSize,
   kReceiveDataFailed,
+  kOutputDataFailed,
 };
 
 struct HttpGetRequestState {
@@ -33,7 +34,7 @@ struct HttpGetRequestState {
   } response;
 
   // Output! (note: if not defined, output is silently discarded!)
-  std::function<void(u32, u8 const*)> on_data{nullptr};
+  std::function<Result(u32, u8 const*)> on_data{nullptr};
 
   // Internal state of the http request
   httpcContext context;
@@ -41,8 +42,7 @@ struct HttpGetRequestState {
 };
 
 HttpGetRequestState InitiateRequest(std::string const& url,
-    std::function<void(u32, u8 const*)> const on_data,
-    u32 const expected_size = kUnknownRequestSize);
+    std::function<Result(u32, u8 const*)> const on_data);
 HttpGetRequestState ProcessRequest(HttpGetRequestState const& state);
 HttpGetRequestState CancelRequest(HttpGetRequestState const& state);
 

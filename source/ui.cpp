@@ -65,12 +65,12 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
       if (state.visible_titles[row].displayed == ListingTitleDisplay::kVisible) {
         draw_raw_sprite(state.visible_titles[row].icon, fb, 
             61, 13 + row * kRowOffset, 48, 48);
-        putnchar(fb, 121, 4 + row * kRowOffset, title_font,
+        _putnchar(fb, 121, 4 + row * kRowOffset, title_font,
             state.visible_titles[row].title.c_str(),
             state.visible_titles[row].title.size());
         textbox(fb, 121, 20 + row * kRowOffset, 177, 49, 12, description_font, 
             state.visible_titles[row].description);
-        putnchar_r(fb, 296, 55 + row * kRowOffset, author_font, 
+        _putnchar_r(fb, 296, 55 + row * kRowOffset, author_font, 
             state.visible_titles[row].author.c_str(), 
             state.visible_titles[row].author.size());
       }

@@ -4,6 +4,7 @@
 #include "storage.h"
 #include "smdh.h"
 #include "string.h"
+#include "filedownloadqueue.h"
 
 #include "drawing.h"
 #include "ui.h"
@@ -37,7 +38,7 @@ void prepare_download_window() {
 void draw_centered_string(u8* fb, Font const& font, int y_pos, string str) {
   u32 width = string_width(font, str.c_str(), str.size());
   u32 x_pos = 160 - width / 2;
-  putnchar(fb, x_pos, y_pos, font, str.c_str(), str.size());
+  _putnchar(fb, x_pos, y_pos, font, str.c_str(), str.size());
 }
 
 void update_download_status(string current_file, int file_index, 
@@ -60,7 +61,6 @@ void update_download_status(string current_file, int file_index,
 
   gfxFlushBuffers();
   gfxSwapBuffers();
-
 }
 
 Result download_app(std::string const& server, std::string const& title) {
@@ -77,10 +77,40 @@ Result download_app(std::string const& server, std::string const& title) {
       get_file_listing_for_title(server, title);
 
   //for (auto const& relative_path : title_file_listing) {
+
+  std::vector<UrlPathLink> file_list;
+  for (unsigned int i = 0; i < title_file_listing.size(); i++) {  
+    auto relative_path = title_file_listing[i];
+    string server_path = "/3ds/" + title + "/" + relative_path;
+
+    file_list.push_back({server + server_path, 
+        "/3ds/" + appname + "/" + relative_path});
+  }
+
+  // Here cheat and do what we were doing before; loop *here* until this queue
+  // finishes being processed, and output progress reports.
+  FileDownloadQueueState file_queue = CreateQueue(file_list);
+
+  while (!(file_queue.finished) and file_queue.error == 
+      FileDownloadQueueError::kNone) {
+    file_queue = ProcessQueue(file_queue);
+
+    HttpGetRequestState& current_file = file_queue.download_state_;
+    int progress = 0;
+    if (current_file.response.expected_size > 0) {
+      progress = current_file.response.current_size * 100 /
+          current_file.response.expected_size;
+    }
+    update_download_status(current_file.url, 0, 42, progress);
+  }
+
+  return (file_queue.error != FileDownloadQueueError::kNone ? 1 : 0);
+
+  /*
   for (unsigned int i = 0; i < title_file_listing.size(); i++) {
     auto relative_path = title_file_listing[i];
     string server_path = "/3ds/" + title + "/" + relative_path;
-    update_download_status(title + "/" + relative_path, i, 
+    update_download_status(title + "/" + relative_path, i,
         title_file_listing.size(), 0);
     gfxFlushBuffers();
     gfxSwapBuffers();
@@ -90,9 +120,9 @@ Result download_app(std::string const& server, std::string const& title) {
       [&](int progress) {
         update_download_status(title + "/" + relative_path, i, 
           title_file_listing.size(), progress);
-      });
+      });    
   }
-  return error;
+  return error;*/
 }
 
 Result download_smdh(std::string const& server, Title const& title, AppInfo& app_info) {

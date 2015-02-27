@@ -20,7 +20,7 @@ Font const author_font{ubuntu_light_10pt_desc, ubuntu_light_10pt_red_bin};
 using std::string;
 using std::vector;
 
-void putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
+void _putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const c) {
   CharacterDescription const& character{font.offsets[c]};
   draw_sprite_from_atlas(font.atlas, framebuffer,
@@ -29,14 +29,14 @@ void putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
       character.w, character.h);
 }
 
-void putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
+void _putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const* const s, u32 const n) {
   s32 horizontal_offset = 0;
   for (u32 character_offset = 0; character_offset < n; ++character_offset) {
     char const c = s[character_offset];
     CharacterDescription const& character{font.offsets[c]};
     if (c != ' ') {
-      putchar(framebuffer, x + horizontal_offset, y, font, c);
+      _putchar(framebuffer, x + horizontal_offset, y, font, c);
     }
     horizontal_offset += character.xa;
   }
@@ -119,13 +119,13 @@ void textbox(u8* fb, u32 x, u32 y, u32 width, u32 height, u32 spacing, Font cons
   u32 max_lines = height / spacing;
   vector<string> lines = word_wrap(font, text, width, max_lines);
   for (auto line : lines) {
-    putnchar(fb, x, y, font, line.c_str(), line.size());
+    _putnchar(fb, x, y, font, line.c_str(), line.size());
     y += spacing;
   }
 }
 
-void putnchar_r(u8* const framebuffer, s32 const x, s32 const y,
+void _putnchar_r(u8* const framebuffer, s32 const x, s32 const y,
     Font const& font, char const* const s, u32 const n) {
   int adjusted_x = x - string_width(font, s, n);
-  putnchar(framebuffer, adjusted_x, y, font, s, n);
+  _putnchar(framebuffer, adjusted_x, y, font, s, n);
 }

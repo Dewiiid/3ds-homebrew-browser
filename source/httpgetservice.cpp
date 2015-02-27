@@ -30,6 +30,9 @@ HttpGetRequestState& request_error(HttpGetRequestState& state, HttpGetRequestErr
     case HttpGetRequestError::kReceiveDataFailed:
       debug_message("Receive Data Failed!");
       break;
+    case HttpGetRequestError::kOutputDataFailed:
+      debug_message("Output Data Failed!");
+      break;
     case HttpGetRequestError::kNone:
       break;
   }
@@ -45,12 +48,10 @@ HttpGetRequestState& request_error(HttpGetRequestState& state, HttpGetRequestErr
 }
 
 HttpGetRequestState InitiateRequest(std::string const& url,
-    std::function<void(u32, u8 const*)> const on_data,
-    u32 const expected_size) {
+    std::function<Result(u32, u8 const*)> const on_data) {
   HttpGetRequestState state;
   state.url = url;
   state.on_data = on_data;
-  state.response.expected_size = expected_size;
 
   // Prepare the http:c service for this request
 
@@ -133,7 +134,10 @@ HttpGetRequestState ProcessRequest(HttpGetRequestState const& old_state) {
 
     // If we received any data this time, go ahead and output it
     if (transferred_this_round > 0) {
-      state.on_data(transferred_this_round, g_http_buffer);
+      Result out_error = state.on_data(transferred_this_round, g_http_buffer);
+      if (out_error) {
+        return request_error(state, HttpGetRequestError::kOutputDataFailed);
+      }
     }
 
     // If we've download all the data, we're done! Close the context and stop.
