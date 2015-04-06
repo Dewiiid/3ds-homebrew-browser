@@ -7,10 +7,22 @@
 
 using namespace std;
 
+FileDownloadQueueProgress CurrentProgress(FileDownloadQueueState const& state) {
+  string current_filename = state.download_state_.url.substr(
+      state.download_state_.url.rfind("/") + 1);
+  int current_file = state.starting_file_count - state.file_queue.size() + 1;
+  float progress_percent = state.download_state_.response.current_size * 100 /
+          state.download_state_.response.expected_size;
+
+  return {current_filename, current_file, state.starting_file_count,
+      progress_percent};
+}
+
 FileDownloadQueueState CreateQueue(std::vector<UrlPathLink> download_list) {
   debug_message("Created a file queue!");
   FileDownloadQueueState state;
   state.file_queue = download_list;
+  state.starting_file_count = download_list.size();
   return state;
 }
 

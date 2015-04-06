@@ -50,8 +50,9 @@ void update_download_status(string current_file, int file_index,
 
   draw_centered_string(fb, title_font, 70, "Currently Downloading:");
   draw_centered_string(fb, description_font, 90, current_file);
-  draw_centered_string(fb, description_font, 110, "(" + 
-      string_from<int>(file_index + 1) + "/" + string_from<int>(total_files) + ")");
+  draw_centered_string(fb, description_font, 110, "(" +
+      string_from<int>(file_index) + "/" + string_from<int>(total_files) +
+      ")");
   
   draw_ui_element(fb, ListingUIElements::kProgressBarEmpty);
 
@@ -95,13 +96,16 @@ Result download_app(std::string const& server, std::string const& title) {
       FileDownloadQueueError::kNone) {
     file_queue = ProcessQueue(file_queue);
 
-    HttpGetRequestState& current_file = file_queue.download_state_;
+    /*HttpGetRequestState& current_file = file_queue.download_state_;
     int progress = 0;
     if (current_file.response.expected_size > 0) {
       progress = current_file.response.current_size * 100 /
           current_file.response.expected_size;
     }
-    update_download_status(current_file.url, 0, 42, progress);
+    string containing_directory = current_file.url.substr(current_file.url.rfind("/") + 1);*/
+    auto queue_status = CurrentProgress(file_queue);
+    update_download_status(queue_status.url, queue_status.current_file,
+        queue_status.total_files, queue_status.progress_percent);
   }
 
   return (file_queue.error != FileDownloadQueueError::kNone ? 1 : 0);

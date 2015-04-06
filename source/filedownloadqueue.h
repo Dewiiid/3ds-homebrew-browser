@@ -27,6 +27,13 @@ enum class FilePhase {
   kFinished
 };
 
+struct FileDownloadQueueProgress {
+  std::string url;
+  int current_file;
+  int total_files;
+  float progress_percent;
+};
+
 struct FileDownloadQueueState {
   std::vector<UrlPathLink> file_queue;
 
@@ -37,9 +44,11 @@ struct FileDownloadQueueState {
   FilePhase current_file_phase_{FilePhase::kNotStarted};
   //Handle current_file_handle_;
   FILE* current_file_handle_;
+  int starting_file_count;
 };
 
 FileDownloadQueueState CreateQueue(std::vector<UrlPathLink> download_list);
 FileDownloadQueueState ProcessQueue(FileDownloadQueueState const& state);
+FileDownloadQueueProgress CurrentProgress(FileDownloadQueueState const& state);
 
 #endif
