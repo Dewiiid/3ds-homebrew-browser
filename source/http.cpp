@@ -51,7 +51,7 @@ std::tuple<Result, std::vector<std::string>> download_and_split_on_newlines(std:
 }
 
 std::tuple<Result, std::vector<std::string>> get_file_listing_for_title(std::string const& server_url, std::string const& title) {
-  return download_and_split_on_newlines(server_url + "/" + title + "/file_list");
+  return download_and_split_on_newlines(server_url + "/3ds/" + title + "/file_list");
 }
 
 tuple<Result, std::vector<u8>> http_download(httpcContext& context) {

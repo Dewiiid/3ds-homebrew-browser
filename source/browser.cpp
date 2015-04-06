@@ -135,7 +135,10 @@ Result download_smdh(std::string const& server, Title const& title, AppInfo& app
     std::tie(error, smdh_byte_buffer) = read_entire_file(kCachePrefix 
         + title.title_name + ".smdh");
   } else {
-    std::tie(error, smdh_byte_buffer) = http_get(server + "/" + title.path + "/smdh");
+    string smdh_path = server + "/3ds/" + title.path + "/" + title.title_name + ".smdh";
+    debug_message(smdh_path);
+    std::tie(error, smdh_byte_buffer) = http_get(smdh_path);
+
     if (error) {
       //provide dummy tile data, and as sane default info as we can come up with
       app_info.title = title.title_name;
@@ -224,7 +227,7 @@ std::map<SelectedCategory, string> g_category_names {
 std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url) {
   Result error;
   std::vector<std::string> raw_listing;
-  std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/homebrew_list");
+  std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/homebrew_list2");
   std::vector<Title> title_list;
   for (auto path : raw_listing) {
     title_list.push_back({

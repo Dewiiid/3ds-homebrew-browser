@@ -2,9 +2,8 @@
 //#include "storage.h"
 
 #include "debug.h"
+#include "storage.h"
 #include "util.h"
-
-
 
 using namespace std;
 
@@ -30,6 +29,8 @@ FileDownloadQueueState ProcessQueue(FileDownloadQueueState const& old_state) {
     // Open the file for reading
     //std::tie(ret, state.current_file_handle_) = open_file_for_writing(
     //    state.file_queue[0].path);
+    string containing_directory = state.file_queue[0].path.substr(0, state.file_queue[0].path.rfind("/"));
+    mkdirp(containing_directory);
     state.current_file_handle_ = fopen(state.file_queue[0].path.c_str(), "w");
     if (state.current_file_handle_ == nullptr) {
         state.error = FileDownloadQueueError::kFileOpenFailed;
