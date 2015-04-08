@@ -24,6 +24,9 @@
 #include "browser.h"
 #include "debug.h"
 
+//Playing with lua
+#include "lua.hpp"
+
 #include "title_screen_bin.h"
 
 using std::string;
@@ -109,7 +112,7 @@ int main()
   // throw our title onscreen (todo: make this part of UI maybe? It's
   // totally static for now)
 
-  //*
+  /*
   u8* fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
   draw_sprite(title_screen_bin, fb, 0, 0);
   gfxFlushBuffers();
@@ -119,6 +122,13 @@ int main()
   /*/
   consoleInit(GFX_TOP, nullptr);
   //*/
+
+  //LUA STUFF!
+  lua_State* Lua = luaL_newstate();
+  luaL_openlibs(Lua);
+
+  luaL_dostring(Lua, "print \"Hello World! (Lua)\"");
+  lua_close(Lua);
 
   
   BrowserState state;
