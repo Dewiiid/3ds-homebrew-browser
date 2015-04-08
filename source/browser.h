@@ -11,8 +11,8 @@
 
 //std::string const kServer = "http://23.21.136.4:1337";
 //std::string const kServer = "http://homebrewbrowser.darknovagames.com";
-std::string const kServer = "http://storage.googleapis.com/3ds-browser-apps";
-
+//std::string const kServer = "http://storage.googleapis.com/3ds-browser-apps";
+std::string const kServer = "http://3ds.homebrewbrowser.com";
 
 struct Title {
   std::string path;

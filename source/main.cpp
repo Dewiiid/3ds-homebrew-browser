@@ -103,10 +103,7 @@ int main()
   fsInit();
   httpcInit();
   initialize_storage();
-
-  consoleInit(GFX_TOP, nullptr);
   initialize_sockets();
-
   initialize_smdh_cache();
 
   // throw our title onscreen (todo: make this part of UI maybe? It's
@@ -119,34 +116,16 @@ int main()
   gfxSwapBuffers();
   fb = gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
   draw_sprite(title_screen_bin, fb, 0, 0);
+  /*/
+  consoleInit(GFX_TOP, nullptr);
   //*/
 
   
   BrowserState state;
   Result error{0};
-  //*
   debug_message("Downloading homebrew list...");
   std::tie(error, state.full_homebrew_list) = get_homebrew_listing(kServer);
   debug_message("Downloaded " + string_from<int>(state.full_homebrew_list.size()) + " titles!");
-  //*/
-
-  //test out hostname stuff
-  /*
-  string hostname = "google.com";
-  debug_message("Looking up " + hostname);
-  string ip_address = hostname_to_ip(hostname);
-  debug_message("Got: " + ip_address + " for " + hostname);
-
-  hostname = "darknovagames.com";
-  debug_message("Looking up " + hostname);
-  ip_address = hostname_to_ip(hostname);
-  debug_message("Got: " + ip_address + " for " + hostname);
-
-  hostname = "homebrewbrowser.darknovagames.com";
-  debug_message("Looking up " + hostname);
-  ip_address = hostname_to_ip(hostname);
-  debug_message("Got: " + ip_address + " for " + hostname);
-  //*/
 
   // Main loop
   while (aptMainLoop())

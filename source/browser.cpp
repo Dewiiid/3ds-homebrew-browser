@@ -231,7 +231,7 @@ std::map<SelectedCategory, string> g_category_names {
 std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url) {
   Result error;
   std::vector<std::string> raw_listing;
-  std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/homebrew_list2");
+  std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/homebrew_list");
   std::vector<Title> title_list;
   for (auto path : raw_listing) {
     title_list.push_back({
