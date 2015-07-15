@@ -2,7 +2,7 @@
 #define HOMEBREW_BROWSER_DRAWING_H_
 
 #include <3ds.h>
-
+namespace homebrew_browser {
 // Draws a sprite that has leading metadata.
 void draw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y);
 // Draws a sprite that is just the image data.
@@ -20,5 +20,6 @@ namespace fx {
 void darken_background(u8* framebuffer, u32 pixel_count);
 void fade_to_black();
 }  // namespace fx
+}  // namespace homebrew_browser
 
 #endif  // HOMEBREW_BROWSER_DRAWING_H_

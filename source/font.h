@@ -7,6 +7,8 @@
 
 #include <3ds.h>
 
+namespace homebrew_browser {
+
 struct CharacterDescription {
   char c;
   int x;
@@ -37,5 +39,7 @@ void _putnchar_r(u8* const framebuffer, s32 const x, s32 const y,
 u32 string_width(Font const& font, char const* const s, u32 const n);
 std::vector<std::string> word_wrap(Font const& font, std::string str, u32 width, u32 max_lines);
 void textbox(u8* fb, u32 x, u32 y, u32 width, u32 height, u32 spacing, Font const& font, std::string text);
+
+}  // namespace homebrew_browser
 
 #endif  // HOMEBREW_BROWSER_FONT_H_

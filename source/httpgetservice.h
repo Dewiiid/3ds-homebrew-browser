@@ -6,6 +6,8 @@
 
 #include <3ds.h>
 
+namespace homebrew_browser {
+
 extern u32 const kUnknownRequestSize;
 extern u32 const kUnknownHttpStatus;
 
@@ -45,5 +47,7 @@ HttpGetRequestState InitiateRequest(std::string const& url,
     std::function<Result(u32, u8 const*)> const on_data);
 HttpGetRequestState ProcessRequest(HttpGetRequestState const& state);
 HttpGetRequestState CancelRequest(HttpGetRequestState const& state);
+
+}  // namespace homebrew_browser
 
 #endif

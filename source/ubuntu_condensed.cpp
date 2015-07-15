@@ -1,6 +1,6 @@
 #include <3ds.h>
 #include "font.h"
-std::array<CharacterDescription, 128> ubuntu_condensed_desc{{
+std::array<homebrew_browser::CharacterDescription, 128> ubuntu_condensed_desc{{
  {0, 231, 68, 1, 16, 0, 0, 1},
  {0, 0, 0, 0, 0, 0, 0, 0},
  {0, 0, 0, 0, 0, 0, 0, 0},

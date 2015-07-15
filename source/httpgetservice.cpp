@@ -3,37 +3,40 @@
 #include "debug.h"
 #include "util.h"
 
-u32 const kUnknownRequestSize = 0;
-u32 const kUnknownHttpStatus = 0;
+namespace hbb = homebrew_browser;
+
+u32 const hbb::kUnknownRequestSize = 0;
+u32 const hbb::kUnknownHttpStatus = 0;
 u32 const kDontWait = 0;
 
 const u32 kHttpBufferSize = 1024;
 u8 g_http_buffer[kHttpBufferSize];
 
-HttpGetRequestState& request_error(HttpGetRequestState& state, HttpGetRequestError error) {
+namespace {
+hbb::HttpGetRequestState& request_error(hbb::HttpGetRequestState& state, hbb::HttpGetRequestError error) {
   switch (error) {
-    case HttpGetRequestError::kCouldntAllocateContext:
-      debug_message("Couldn't allocate context!");
+    case hbb::HttpGetRequestError::kCouldntAllocateContext:
+      hbb::debug_message("Couldn't allocate context!");
       break;
-    case HttpGetRequestError::kCouldntBeginReqest:
-      debug_message("Couldn't begin request!");
+    case hbb::HttpGetRequestError::kCouldntBeginReqest:
+      hbb::debug_message("Couldn't begin request!");
       break;
-    case HttpGetRequestError::kBadStatusCode:
-      debug_message("Bad Status Code!");
+    case hbb::HttpGetRequestError::kBadStatusCode:
+      hbb::debug_message("Bad Status Code!");
       break;
-    case HttpGetRequestError::kBadRequestState:
-      debug_message("Bad Request State!");
+    case hbb::HttpGetRequestError::kBadRequestState:
+      hbb::debug_message("Bad Request State!");
       break;
-    case HttpGetRequestError::kBadDownloadSize:
-      debug_message("Bad Download Size!");
+    case hbb::HttpGetRequestError::kBadDownloadSize:
+      hbb::debug_message("Bad Download Size!");
       break;
-    case HttpGetRequestError::kReceiveDataFailed:
-      debug_message("Receive Data Failed!");
+    case hbb::HttpGetRequestError::kReceiveDataFailed:
+      hbb::debug_message("Receive Data Failed!");
       break;
-    case HttpGetRequestError::kOutputDataFailed:
-      debug_message("Output Data Failed!");
+    case hbb::HttpGetRequestError::kOutputDataFailed:
+      hbb::debug_message("Output Data Failed!");
       break;
-    case HttpGetRequestError::kNone:
+    case hbb::HttpGetRequestError::kNone:
       break;
   }
   state.error = error;
@@ -47,7 +50,32 @@ HttpGetRequestState& request_error(HttpGetRequestState& state, HttpGetRequestErr
   return state;
 }
 
-HttpGetRequestState InitiateRequest(std::string const& url,
+hbb::HttpGetRequestState& RetrieveDownloadStatus(hbb::HttpGetRequestState& state) {
+  Result ret = httpcGetResponseStatusCode(&state.context, &state.status_code_,
+      kDontWait);
+  if (ret) {
+    hbb::debug_message("Failed to retrieve status code!");
+    return request_error(state, hbb::HttpGetRequestError::kBadStatusCode);
+  }
+
+  // If we received any status code other than 200, bail.
+  if (state.status_code_ != 200) {
+    hbb::debug_message("Status code: " + hbb::string_from<u32>(state.status_code_));
+    return request_error(state, hbb::HttpGetRequestError::kBadStatusCode);
+  }
+
+  // Update the expected size of the download here (for reporting)
+  ret = httpcGetDownloadSizeState(&state.context, NULL,
+      &state.response.expected_size);
+  if (ret) {
+    return request_error(state, hbb::HttpGetRequestError::kBadDownloadSize);
+  }
+  return state;
+}
+
+}
+
+hbb::HttpGetRequestState hbb::InitiateRequest(std::string const& url,
     std::function<Result(u32, u8 const*)> const on_data) {
   HttpGetRequestState state;
   state.url = url;
@@ -73,30 +101,7 @@ HttpGetRequestState InitiateRequest(std::string const& url,
   return state;
 }
 
-HttpGetRequestState& RetrieveDownloadStatus(HttpGetRequestState& state) {
-  Result ret = httpcGetResponseStatusCode(&state.context, &state.status_code_,
-      kDontWait);
-  if (ret) {
-    debug_message("Failed to retrieve status code!");
-    return request_error(state, HttpGetRequestError::kBadStatusCode);
-  }
-
-  // If we received any status code other than 200, bail.
-  if (state.status_code_ != 200) {
-    debug_message("Status code: " + string_from<u32>(state.status_code_));
-    return request_error(state, HttpGetRequestError::kBadStatusCode);
-  }
-
-  // Update the expected size of the download here (for reporting)
-  ret = httpcGetDownloadSizeState(&state.context, NULL,
-      &state.response.expected_size);
-  if (ret) {
-    return request_error(state, HttpGetRequestError::kBadDownloadSize);
-  }
-  return state;
-}
-
-HttpGetRequestState ProcessRequest(HttpGetRequestState const& old_state) {
+hbb::HttpGetRequestState hbb::ProcessRequest(HttpGetRequestState const& old_state) {
   Result ret;
 
   HttpGetRequestState state = old_state;

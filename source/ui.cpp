@@ -29,16 +29,18 @@
 #include "progress_bar_empty_bin.h"
 #include "progress_bar_full_bin.h"
 
-std::array<UIElement, sizeof(ListingUIElementSize)> const g_listing_ui_elements{{
+namespace hbb = homebrew_browser;
+
+std::array<hbb::UIElement, sizeof(hbb::ListingUIElementSize)> const hbb::g_listing_ui_elements{{
   LISTING_UI_ELEMENTS(EXPAND_UI_AS_STD_ARRAY)
 }};
 
-void draw_ui_element(u8* framebuffer, ListingUIElements const element) {
+void hbb::draw_ui_element(u8* framebuffer, ListingUIElements const element) {
   UIElement const& data = g_listing_ui_elements[static_cast<size_t>(element)];
   draw_sprite(data.image, framebuffer, data.x, data.y);
 }
 
-void draw_full_ui_from_state(ListingDrawState const& state) {
+void hbb::draw_full_ui_from_state(ListingDrawState const& state) {
     u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
     draw_solid_background(fb, 240 * 320, 216, 201, 201);
 
@@ -108,7 +110,7 @@ void draw_full_ui_from_state(ListingDrawState const& state) {
     }
 }
 
-void redraw_full_ui() {
+void hbb::redraw_full_ui() {
     u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
     draw_solid_background(fb, 240 * 320, 216, 201, 201);
 

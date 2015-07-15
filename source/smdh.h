@@ -7,6 +7,8 @@
 
 #include <3ds.h>
 
+namespace homebrew_browser {
+
 typedef struct
 {
   u32 magic;
@@ -44,5 +46,7 @@ typedef struct
 }smdh_s;
 
 int extractSmdhData(smdh_s* s, char* name, char* desc, char* auth, u8* iconData);
+
+}  // namespace homebrew_browser
 
 #endif  // HOMEBREW_BROWSER_SMDH_H_

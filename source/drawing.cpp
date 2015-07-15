@@ -4,15 +4,9 @@
 
 #include <3ds.h>
 
-u32 get_image_width(u8 const* const image) {
-  return *reinterpret_cast<u32 const*>(image);
-}
+namespace hbb = homebrew_browser;
 
-u32 get_image_height(u8 const* const image) {
-  return *reinterpret_cast<u32 const*>(image + 4);
-}
-
-u32 const kImageHeaderSizeBytes = 8;
+namespace {
 
 void blit_column(u8 const* source, u8* dest, u32 pixel_count) {
   memcpy(dest, source, 3 * pixel_count);
@@ -25,23 +19,35 @@ void blit(u8 const* source, u8* dest, u32 rows, u32 columns) {
 }
 
 void blit_sprite(u8 const* source, u8* dest) {
-  u32 width = get_image_width(source);
-  u32 height = get_image_height(source);
+  u32 width = hbb::get_image_width(source);
+  u32 height = hbb::get_image_height(source);
   blit(source + 8, dest, height, width);
 }
 
-void draw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y) {
+}  // namespace
+
+u32 hbb::get_image_width(u8 const* const image) {
+  return *reinterpret_cast<u32 const*>(image);
+}
+
+u32 hbb::get_image_height(u8 const* const image) {
+  return *reinterpret_cast<u32 const*>(image + 4);
+}
+
+u32 const kImageHeaderSizeBytes = 8;
+
+void hbb::draw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y) {
   u32 const width = get_image_width(source);
   u32 const height = get_image_height(source);
   draw_raw_sprite(source + kImageHeaderSizeBytes, framebuffer, x, y, width, height);
 }
 
-void draw_raw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y, u32 width, u32 height) {
+void hbb::draw_raw_sprite(u8 const* source, u8* framebuffer, u32 x, u32 y, u32 width, u32 height) {
   // Convert from typical screen coordinates to framebuffer coordinates.
   blit(source, framebuffer + 3 * (240 - y - height + x * 240), height, width);
 }
 
-void draw_sprite_from_atlas(u8 const* const source, u8* framebuffer,
+void hbb::draw_sprite_from_atlas(u8 const* const source, u8* framebuffer,
     s32 screen_x, s32 screen_y, u32 atlas_x, u32 atlas_y, u32 width,
     u32 height) {
   u32 const atlas_height = get_image_height(source);
@@ -54,7 +60,7 @@ void draw_sprite_from_atlas(u8 const* const source, u8* framebuffer,
   }
 }
 
-void draw_solid_background(u8* framebuffer, u32 pixel_count, u8 r, u8 g, u8 b) {
+void hbb::draw_solid_background(u8* framebuffer, u32 pixel_count, u8 r, u8 g, u8 b) {
   for (u32 i = 0; i < pixel_count; ++i) {
     framebuffer[3 * i + 0] = b;
     framebuffer[3 * i + 1] = g;
@@ -62,13 +68,13 @@ void draw_solid_background(u8* framebuffer, u32 pixel_count, u8 r, u8 g, u8 b) {
   }
 }
 
-void fx::darken_background(u8* framebuffer, u32 pixels) {
+void hbb::fx::darken_background(u8* framebuffer, u32 pixels) {
   for (u8* color = framebuffer; color < framebuffer + pixels * 3; color++) {
     *color = *color >> 1;
   }
 }
 
-void fx::fade_to_black() {
+void hbb::fx::fade_to_black() {
   for (int i = 0; i < 16; i++) {
     gspWaitForVBlank();
     for (int j = 0; j < 2; j++) {

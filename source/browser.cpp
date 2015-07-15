@@ -19,26 +19,26 @@
 
 using std::string;
 
+namespace hbb = homebrew_browser;
+
 const string kCachePrefix = "/3ds/homebrew-browser/icon-cache/";
 
-void initialize_smdh_cache() {
-  mkdirp(kCachePrefix);
-}
+namespace {
 
 void prepare_download_window() {
   //Prepare the framebuffers by darkening both of them
   u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
-  fx::darken_background(fb, 320*240);
+  hbb::fx::darken_background(fb, 320*240);
   gfxFlushBuffers();
   gfxSwapBuffers();
   fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
-  fx::darken_background(fb, 320*240);
+  hbb::fx::darken_background(fb, 320*240);
 }
 
-void draw_centered_string(u8* fb, Font const& font, int y_pos, string str) {
-  u32 width = string_width(font, str.c_str(), str.size());
+void draw_centered_string(u8* fb, hbb::Font const& font, int y_pos, string str) {
+  u32 width = hbb::string_width(font, str.c_str(), str.size());
   u32 x_pos = 160 - width / 2;
-  _putnchar(fb, x_pos, y_pos, font, str.c_str(), str.size());
+  hbb::_putnchar(fb, x_pos, y_pos, font, str.c_str(), str.size());
 }
 
 void update_download_status(string current_file, int file_index, 
@@ -46,25 +46,72 @@ void update_download_status(string current_file, int file_index,
   gspWaitForVBlank();
   //first, draw a blank window
   u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
-  draw_ui_element(fb, ListingUIElements::kDownloadWindow);
+  hbb::draw_ui_element(fb, hbb::ListingUIElements::kDownloadWindow);
 
-  draw_centered_string(fb, title_font, 70, "Currently Downloading:");
-  draw_centered_string(fb, description_font, 90, current_file);
-  draw_centered_string(fb, description_font, 110, "(" +
-      string_from<int>(file_index) + "/" + string_from<int>(total_files) +
+  draw_centered_string(fb, hbb::title_font, 70, "Currently Downloading:");
+  draw_centered_string(fb, hbb::description_font, 90, current_file);
+  draw_centered_string(fb, hbb::description_font, 110, "(" +
+      hbb::string_from<int>(file_index) + "/" + hbb::string_from<int>(total_files) +
       ")");
   
-  draw_ui_element(fb, ListingUIElements::kProgressBarEmpty);
+  hbb::draw_ui_element(fb, hbb::ListingUIElements::kProgressBarEmpty);
 
   //manual draw here
-  UIElement const& data = g_listing_ui_elements[static_cast<size_t>(ListingUIElements::kProgressBarFull)];
-  draw_raw_sprite(data.image + 8, fb, data.x, data.y, file_progress * 150 / 100, 27);
+  hbb::UIElement const& data = hbb::g_listing_ui_elements[static_cast<size_t>(hbb::ListingUIElements::kProgressBarFull)];
+  hbb::draw_raw_sprite(data.image + 8, fb, data.x, data.y, file_progress * 150 / 100, 27);
 
   gfxFlushBuffers();
   gfxSwapBuffers();
 }
 
-Result download_app(std::string const& server, std::string const& title) {
+Result download_smdh(std::string const& server, hbb::Title const& title, hbb::AppInfo& app_info) {
+  Result error{0};
+  std::vector<u8> smdh_byte_buffer;
+
+  //check the cache first
+  if (hbb::file_exists(kCachePrefix + title.title_name + ".smdh")) {
+    //We already have this in the cache, so just use that.
+    std::tie(error, smdh_byte_buffer) = hbb::read_entire_file(kCachePrefix 
+        + title.title_name + ".smdh");
+  } else {
+    string smdh_path = server + "/3ds/" + title.path + "/" + title.title_name + ".smdh";
+    hbb::debug_message(smdh_path);
+    std::tie(error, smdh_byte_buffer) = hbb::http_get(smdh_path);
+
+    if (error) {
+      //provide dummy tile data, and as sane default info as we can come up with
+      app_info.title = title.title_name;
+      app_info.author = "Unknown Publisher";
+      app_info.description = "";
+      memcpy(&(*app_info.image)[0], no_icon_bin + 8, 48 * 48 * 3);
+      return error;
+    } else {
+      //now that we have this file, go ahead and store it in the cache for later
+      hbb::write_file(kCachePrefix + title.title_name + ".smdh", 
+          &smdh_byte_buffer[0], smdh_byte_buffer.size());
+    }
+  }
+
+  char smdh_title[0x40];
+  char smdh_author[0x40];
+  char smdh_description[0x80];
+  hbb::smdh_s* const smdh = reinterpret_cast<hbb::smdh_s*>(&smdh_byte_buffer[0]);
+
+  extractSmdhData(smdh, smdh_title, smdh_description, smdh_author, &(*app_info.image)[0]);
+  app_info.title = smdh_title;
+  app_info.author = smdh_author;
+  app_info.description = smdh_description;
+
+  return error;
+}
+
+}  // namespace
+
+void hbb::initialize_smdh_cache() {
+  mkdirp(kCachePrefix);
+}
+
+Result hbb::download_app(std::string const& server, std::string const& title) {
   // cheat: draw an interface here, since we're going to be blocking
   // the main thread.
   // TODO: make downloads happen in the background, and instead do most of
@@ -129,48 +176,7 @@ Result download_app(std::string const& server, std::string const& title) {
   return error;*/
 }
 
-Result download_smdh(std::string const& server, Title const& title, AppInfo& app_info) {
-  Result error{0};
-  std::vector<u8> smdh_byte_buffer;
-
-  //check the cache first
-  if (file_exists(kCachePrefix + title.title_name + ".smdh")) {
-    //We already have this in the cache, so just use that.
-    std::tie(error, smdh_byte_buffer) = read_entire_file(kCachePrefix 
-        + title.title_name + ".smdh");
-  } else {
-    string smdh_path = server + "/3ds/" + title.path + "/" + title.title_name + ".smdh";
-    debug_message(smdh_path);
-    std::tie(error, smdh_byte_buffer) = http_get(smdh_path);
-
-    if (error) {
-      //provide dummy tile data, and as sane default info as we can come up with
-      app_info.title = title.title_name;
-      app_info.author = "Unknown Publisher";
-      app_info.description = "";
-      memcpy(&(*app_info.image)[0], no_icon_bin + 8, 48 * 48 * 3);
-      return error;
-    } else {
-      //now that we have this file, go ahead and store it in the cache for later
-      write_file(kCachePrefix + title.title_name + ".smdh", 
-          &smdh_byte_buffer[0], smdh_byte_buffer.size());
-    }
-  }
-
-  char smdh_title[0x40];
-  char smdh_author[0x40];
-  char smdh_description[0x80];
-  smdh_s* const smdh = reinterpret_cast<smdh_s*>(&smdh_byte_buffer[0]);
-
-  extractSmdhData(smdh, smdh_title, smdh_description, smdh_author, &(*app_info.image)[0]);
-  app_info.title = smdh_title;
-  app_info.author = smdh_author;
-  app_info.description = smdh_description;
-
-  return error;
-}
-
-void update_metadata_for_page(std::string const& server,
+void hbb::update_metadata_for_page(std::string const& server,
     FilteredListCursor const& cursor, std::array<AppInfo, 3>& smdh_cache) {
   bool const there_are_no_titles = cursor.begin == cursor.end;
   if (there_are_no_titles) {
@@ -205,13 +211,13 @@ void update_metadata_for_page(std::string const& server,
   }
 }
 
-void switch_to_category(SelectedCategory category, BrowserState& state) {
+void hbb::switch_to_category(SelectedCategory category, BrowserState& state) {
   state.selected_index = 0;
   state.selected_category = category;
   state.filtered_list_dirty = true;
 }
 
-FilteredListCursor get_title_list_cursor(FilteredList const& titles,
+hbb::FilteredListCursor hbb::get_title_list_cursor(FilteredList const& titles,
     FilteredList::size_type const& offset) {
   return FilteredListCursor{
     begin(titles),
@@ -220,15 +226,15 @@ FilteredListCursor get_title_list_cursor(FilteredList const& titles,
   };
 }
 
-std::map<SelectedCategory, string> g_category_names {
-  {SelectedCategory::kGames, "games"},
-  {SelectedCategory::kMedia, "media"},
-  {SelectedCategory::kEmulators, "emulators"},
-  {SelectedCategory::kTools, "tools"},
-  {SelectedCategory::kMisc, "misc"}
+std::map<hbb::SelectedCategory, string> g_category_names {
+  {hbb::SelectedCategory::kGames, "games"},
+  {hbb::SelectedCategory::kMedia, "media"},
+  {hbb::SelectedCategory::kEmulators, "emulators"},
+  {hbb::SelectedCategory::kTools, "tools"},
+  {hbb::SelectedCategory::kMisc, "misc"}
 };
 
-std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& server_url) {
+std::tuple<Result, std::vector<hbb::Title>> hbb::get_homebrew_listing(std::string const& server_url) {
   Result error;
   std::vector<std::string> raw_listing;
   std::tie(error, raw_listing) = download_and_split_on_newlines(server_url + "/homebrew_list");
@@ -244,14 +250,14 @@ std::tuple<Result, std::vector<Title>> get_homebrew_listing(std::string const& s
   return std::make_tuple(error, title_list);
 }
 
-void sort_homebrew_list(BrowserState& state) {
+void hbb::sort_homebrew_list(BrowserState& state) {
   std::sort(begin(state.full_homebrew_list), end(state.full_homebrew_list));
   if (state.sort_order == ListingSortOrder::kAlphanumericDescending) {
     std::reverse(begin(state.full_homebrew_list), end(state.full_homebrew_list));
   }
 }
 
-void filter_homebrew_list(BrowserState& state) {
+void hbb::filter_homebrew_list(BrowserState& state) {
   state.filtered_homebrew_list.clear();
   for (auto& title : state.full_homebrew_list) {
     if (state.selected_category == SelectedCategory::kNone or 

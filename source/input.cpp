@@ -5,16 +5,18 @@
 
 #include <3ds.h>
 
-void toggle_sort_order(BrowserState& state) {
-  if (state.sort_order == ListingSortOrder::kAlphanumericAscending) {
-    state.sort_order = ListingSortOrder::kAlphanumericDescending;
+namespace hbb = homebrew_browser;
+
+void toggle_sort_order(hbb::BrowserState& state) {
+  if (state.sort_order == hbb::ListingSortOrder::kAlphanumericAscending) {
+    state.sort_order = hbb::ListingSortOrder::kAlphanumericDescending;
   } else {
-    state.sort_order = ListingSortOrder::kAlphanumericAscending;
+    state.sort_order = hbb::ListingSortOrder::kAlphanumericAscending;
   }
   state.filtered_list_dirty = true;
 }
 
-void handle_button_input(u32 const keys_down, BrowserState& state) {
+void handle_button_input(u32 const keys_down, hbb::BrowserState& state) {
   //Exit the app on home button
   if (keys_down & KEY_START) {
       aptSetStatus(APP_EXITING);
@@ -31,7 +33,7 @@ void handle_button_input(u32 const keys_down, BrowserState& state) {
     }
 
     if (keys_down & KEY_A) {
-      download_app(state.filtered_homebrew_list[state.selected_index]->server, 
+      hbb::download_app(state.filtered_homebrew_list[state.selected_index]->server, 
           state.filtered_homebrew_list[state.selected_index]->path);
     }
 
@@ -39,13 +41,13 @@ void handle_button_input(u32 const keys_down, BrowserState& state) {
       consoleInit(GFX_TOP, nullptr);
     }
 
-    if (keys_down & KEY_L and state.selected_category > SelectedCategory::kNone) {
-      state.selected_category = static_cast<SelectedCategory>(
+    if (keys_down & KEY_L and state.selected_category > hbb::SelectedCategory::kNone) {
+      state.selected_category = static_cast<hbb::SelectedCategory>(
           static_cast<int>(state.selected_category) - 1);
       switch_to_category(state.selected_category, state);
     }
-    if (keys_down & KEY_R and state.selected_category < SelectedCategory::kMisc) {
-      state.selected_category = static_cast<SelectedCategory>(
+    if (keys_down & KEY_R and state.selected_category < hbb::SelectedCategory::kMisc) {
+      state.selected_category = static_cast<hbb::SelectedCategory>(
           static_cast<int>(state.selected_category) + 1);
       switch_to_category(state.selected_category, state);
     }
@@ -62,21 +64,21 @@ bool region_touched(touchPosition const pos, int x, int y, int width, int height
   return false;
 }
 
-bool ui_element_touched(touchPosition const pos, ListingUIElements const element) {
-  UIElement const& data = g_listing_ui_elements[static_cast<size_t>(element)];
+bool ui_element_touched(touchPosition const pos, hbb::ListingUIElements const element) {
+  hbb::UIElement const& data = hbb::g_listing_ui_elements[static_cast<size_t>(element)];
   return region_touched(pos, data.x, data.y, 
-      get_image_width(data.image), get_image_height(data.image));
+      hbb::get_image_width(data.image), hbb::get_image_height(data.image));
 }
 
-void toggle_category(SelectedCategory touched_category, BrowserState& state) {
+void toggle_category(hbb::SelectedCategory touched_category, hbb::BrowserState& state) {
   bool category_already_selected = touched_category == state.selected_category;
   switch_to_category(category_already_selected ? 
-      SelectedCategory::kNone : touched_category, state);
+      hbb::SelectedCategory::kNone : touched_category, state);
 }
 
-void handle_touch_regions(touchPosition const pos, BrowserState& state) {
+void handle_touch_regions(touchPosition const pos, hbb::BrowserState& state) {
   //UI Bar
-  if (ui_element_touched(pos, ListingUIElements::kSortReversed)) {
+  if (ui_element_touched(pos, hbb::ListingUIElements::kSortReversed)) {
     toggle_sort_order(state);
   }
   //Home Button
@@ -85,67 +87,67 @@ void handle_touch_regions(touchPosition const pos, BrowserState& state) {
   }
 
   //Categories
-  if (ui_element_touched(pos, ListingUIElements::kGamesDark)) {
-    toggle_category(SelectedCategory::kGames, state);
+  if (ui_element_touched(pos, hbb::ListingUIElements::kGamesDark)) {
+    toggle_category(hbb::SelectedCategory::kGames, state);
   }
-  if (ui_element_touched(pos, ListingUIElements::kMediaDark)) {
-    toggle_category(SelectedCategory::kMedia, state);
+  if (ui_element_touched(pos, hbb::ListingUIElements::kMediaDark)) {
+    toggle_category(hbb::SelectedCategory::kMedia, state);
   }
-  if (ui_element_touched(pos, ListingUIElements::kEmulatorsDark)) {
-    toggle_category(SelectedCategory::kEmulators, state);
+  if (ui_element_touched(pos, hbb::ListingUIElements::kEmulatorsDark)) {
+    toggle_category(hbb::SelectedCategory::kEmulators, state);
   }
-  if (ui_element_touched(pos, ListingUIElements::kToolsDark)) {
-    toggle_category(SelectedCategory::kTools, state);
+  if (ui_element_touched(pos, hbb::ListingUIElements::kToolsDark)) {
+    toggle_category(hbb::SelectedCategory::kTools, state);
   }
-  if (ui_element_touched(pos, ListingUIElements::kMiscDark)) {
-    toggle_category(SelectedCategory::kMisc, state);
+  if (ui_element_touched(pos, hbb::ListingUIElements::kMiscDark)) {
+    toggle_category(hbb::SelectedCategory::kMisc, state);
   }
 
   //App Rows - touching one initiates a download
   u32 base_index = state.selected_index - (state.selected_index % 3);
-  if (ui_element_touched(pos, ListingUIElements::kTopRowLight) and
+  if (ui_element_touched(pos, hbb::ListingUIElements::kTopRowLight) and
       base_index < state.filtered_homebrew_list.size()) {
-    download_app(state.filtered_homebrew_list[base_index]->server, 
+    hbb::download_app(state.filtered_homebrew_list[base_index]->server, 
           state.filtered_homebrew_list[base_index]->path);
   }
-  if (ui_element_touched(pos, ListingUIElements::kMiddleRowLight) and
+  if (ui_element_touched(pos, hbb::ListingUIElements::kMiddleRowLight) and
       base_index + 1 < state.filtered_homebrew_list.size()) {
-    download_app(state.filtered_homebrew_list[base_index + 1]->server, 
+    hbb::download_app(state.filtered_homebrew_list[base_index + 1]->server, 
           state.filtered_homebrew_list[base_index + 1]->path);
   }
-  if (ui_element_touched(pos, ListingUIElements::kBottomRowLight) and
+  if (ui_element_touched(pos, hbb::ListingUIElements::kBottomRowLight) and
       base_index + 2 < state.filtered_homebrew_list.size()) {
-    download_app(state.filtered_homebrew_list[base_index + 2]->server, 
+    hbb::download_app(state.filtered_homebrew_list[base_index + 2]->server, 
           state.filtered_homebrew_list[base_index + 2]->path);
   }  
 }
 
 int scrollbar_height() {
-  return get_image_height(g_listing_ui_elements[static_cast<size_t>(
-      ListingUIElements::kScrollBar)].image) - 1; // account for shadow pixel
+  return hbb::get_image_height(hbb::g_listing_ui_elements[static_cast<size_t>(
+      hbb::ListingUIElements::kScrollBar)].image) - 1; // account for shadow pixel
 }
 
 int scrollbar_width() {
-  return get_image_width(g_listing_ui_elements[static_cast<size_t>(
-      ListingUIElements::kScrollBar)].image) - 1; // account for shadow pixel
+  return hbb::get_image_width(hbb::g_listing_ui_elements[static_cast<size_t>(
+      hbb::ListingUIElements::kScrollBar)].image) - 1; // account for shadow pixel
 }
 
 s32 const kScrollAreaTop = 3;
 s32 const kScrollAreaHeight = 210;
-int scrollbar_current_y(BrowserState& state) {
+int scrollbar_current_y(hbb::BrowserState& state) {
   return kScrollAreaTop + (state.selected_index * 
       (kScrollAreaHeight - scrollbar_height()) 
       / (state.filtered_homebrew_list.size() - 1));
 }
 
-bool inside_scrollbar(BrowserState& state, touchPosition pos) {
-  UIElement const& data = g_listing_ui_elements[static_cast<size_t>(
-      ListingUIElements::kScrollBar)];
+bool inside_scrollbar(hbb::BrowserState& state, touchPosition pos) {
+  hbb::UIElement const& data = hbb::g_listing_ui_elements[static_cast<size_t>(
+      hbb::ListingUIElements::kScrollBar)];
   return region_touched(pos, data.x, scrollbar_current_y(state), 
       scrollbar_width(), scrollbar_height());
 }
 
-void handle_touch_scrollbar(BrowserState& state, u32 keys_down, u32 keys_held, u32 keys_up, touchPosition const pos) {  
+void handle_touch_scrollbar(hbb::BrowserState& state, u32 keys_down, u32 keys_held, u32 keys_up, touchPosition const pos) {  
   // this stores the stylus's initial touch position, so we can offset the
   // behavior later; this makes grabbing the "top" or the "bottom" of the
   // scrollbar work, and not feel janky.
@@ -161,8 +163,8 @@ void handle_touch_scrollbar(BrowserState& state, u32 keys_down, u32 keys_held, u
     s32 scrolled_index = (pos.py - kScrollAreaTop - touch_offset) 
         * (signed)state.filtered_homebrew_list.size() / 150;
 
-    debug_message("before " + string_from<s32>(scrolled_index));
-    debug_message("offset " + string_from<s32>(touch_offset));
+    hbb::debug_message("before " + hbb::string_from<s32>(scrolled_index));
+    hbb::debug_message("offset " + hbb::string_from<s32>(touch_offset));
 
     if (scrolled_index >= (signed)state.filtered_homebrew_list.size()) {
       scrolled_index = state.filtered_homebrew_list.size() - 1;
@@ -171,7 +173,7 @@ void handle_touch_scrollbar(BrowserState& state, u32 keys_down, u32 keys_held, u
       scrolled_index = 0;
     }
 
-    debug_message("after " + string_from<s32>(scrolled_index));
+    hbb::debug_message("after " + hbb::string_from<s32>(scrolled_index));
 
     state.selected_index = scrolled_index;
   }
@@ -181,7 +183,7 @@ void handle_touch_scrollbar(BrowserState& state, u32 keys_down, u32 keys_held, u
   }
 }
 
-void handle_input(BrowserState& state) {
+void hbb::handle_input(BrowserState& state) {
   hidScanInput();
   u32 keys_down = hidKeysDown();
   u32 keys_held = hidKeysHeld();

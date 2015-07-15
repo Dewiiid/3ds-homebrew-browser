@@ -10,11 +10,13 @@
 
 using namespace std;
 
+namespace hbb = homebrew_browser;
+
 const int kLineHeight = 16; //pixels to scroll
 const int kTopScreenHeight = 240;
 const int kTopScreenWidth = 400;
 
-void debug_message(string const& message, bool force_frame) {
+void hbb::debug_message(string const& message, bool force_frame) {
   cerr << message << endl;
 
   if (force_frame) {
@@ -26,7 +28,7 @@ void debug_message(string const& message, bool force_frame) {
   }
 }
 
-void debug_color(u8 r, u8 g, u8 b, int delay_frames) {
+void hbb::debug_color(u8 r, u8 g, u8 b, int delay_frames) {
   for (int i = 0; i < delay_frames; ++i)
   {
     u8* fb = gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);

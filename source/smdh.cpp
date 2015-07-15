@@ -11,6 +11,10 @@
 // This function was taken from smealum/3ds_hb_menu/source/utils.h, commit
 // 2a45cf3972348ed83a3ef203ca9d4fb2a2280c9d. It was written by smealum and
 // fincs.
+
+namespace hbb = homebrew_browser;
+
+namespace {
 static inline void unicodeToChar(char* dst, u16* src, int max)
 {
   if(!src || !dst)return;
@@ -29,7 +33,9 @@ static inline void putPixel565(u8* dst, u8 x, u8 y, u16 v)
   dst[((47-y)+x*48)*3+2]=((v>>11)&0x1F)<<3;
 }
 
-int extractSmdhData(smdh_s* s, char* name, char* desc, char* auth, u8* iconData)
+}  // namespace
+
+int hbb::extractSmdhData(smdh_s* s, char* name, char* desc, char* auth, u8* iconData)
 {
   if(!s)return -1;
   if(s->header.magic!=0x48444D53)return -2;

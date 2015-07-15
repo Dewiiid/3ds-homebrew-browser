@@ -1,6 +1,6 @@
 #include <3ds.h>
 #include "font.h"
-std::array<CharacterDescription, 128> ubuntu_light_10pt_desc{{
+std::array<homebrew_browser::CharacterDescription, 128> ubuntu_light_10pt_desc{{
  {0, 26, 64, 1, 1, 0, 0, 0},
  {0, 0, 0, 0, 0, 0, 0, 0},
  {0, 0, 0, 0, 0, 0, 0, 0},

@@ -7,7 +7,9 @@
 
 using namespace std;
 
-FileDownloadQueueProgress CurrentProgress(FileDownloadQueueState const& state) {
+namespace hbb = homebrew_browser;
+
+hbb::FileDownloadQueueProgress hbb::CurrentProgress(FileDownloadQueueState const& state) {
   string current_filename = state.download_state_.url.substr(
       state.download_state_.url.rfind("/") + 1);
   int current_file = state.starting_file_count - state.file_queue.size() + 1;
@@ -18,7 +20,7 @@ FileDownloadQueueProgress CurrentProgress(FileDownloadQueueState const& state) {
       progress_percent};
 }
 
-FileDownloadQueueState CreateQueue(std::vector<UrlPathLink> download_list) {
+hbb::FileDownloadQueueState hbb::CreateQueue(std::vector<UrlPathLink> download_list) {
   debug_message("Created a file queue!");
   FileDownloadQueueState state;
   state.file_queue = download_list;
@@ -26,7 +28,7 @@ FileDownloadQueueState CreateQueue(std::vector<UrlPathLink> download_list) {
   return state;
 }
 
-FileDownloadQueueState ProcessQueue(FileDownloadQueueState const& old_state) {
+hbb::FileDownloadQueueState hbb::ProcessQueue(FileDownloadQueueState const& old_state) {
   // If we're done, exit immediately. (Don't waste time.)
   if (old_state.finished or old_state.error != FileDownloadQueueError::kNone) {
     return old_state;
@@ -114,4 +116,3 @@ FileDownloadQueueState ProcessQueue(FileDownloadQueueState const& old_state) {
 
   return state;
 }
-

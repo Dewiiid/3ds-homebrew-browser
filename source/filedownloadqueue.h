@@ -7,7 +7,7 @@
 
 #include "httpgetservice.h"
 
-
+namespace homebrew_browser {
 
 struct UrlPathLink {
   std::string url;
@@ -50,5 +50,7 @@ struct FileDownloadQueueState {
 FileDownloadQueueState CreateQueue(std::vector<UrlPathLink> download_list);
 FileDownloadQueueState ProcessQueue(FileDownloadQueueState const& state);
 FileDownloadQueueProgress CurrentProgress(FileDownloadQueueState const& state);
+
+}  // namespace homebrew_browser
 
 #endif

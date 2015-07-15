@@ -7,6 +7,8 @@
 
 #include <3ds.h>
 
+namespace homebrew_browser {
+
 std::string string_from_bytes(std::vector<u8> const& v);
 
 template<typename T>
@@ -19,5 +21,7 @@ std::string string_from(T const& value, bool usehex = false) {
   }
   return ss.str();
 }
+
+}  // namespace homebrew_browser
 
 #endif  // HOMEBREW_BROWSER_UTIL_H_

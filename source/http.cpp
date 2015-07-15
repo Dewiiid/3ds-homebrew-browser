@@ -20,6 +20,8 @@
 using std::string;
 using std::tuple;
 
+namespace hbb = homebrew_browser;
+
 struct url_components {
   string protocol;
   string hostname;
@@ -28,7 +30,7 @@ struct url_components {
   string resource;
 };
 
-std::tuple<Result, std::vector<std::string>> download_and_split_on_newlines(std::string const& url) {
+std::tuple<Result, std::vector<std::string>> hbb::download_and_split_on_newlines(std::string const& url) {
   Result error{0};
   std::vector<u8> raw_response;
   std::tie(error, raw_response) = http_get(url);
@@ -50,7 +52,7 @@ std::tuple<Result, std::vector<std::string>> download_and_split_on_newlines(std:
   return std::make_tuple(error, lines);
 }
 
-std::tuple<Result, std::vector<std::string>> get_file_listing_for_title(std::string const& server_url, std::string const& title) {
+std::tuple<Result, std::vector<std::string>> hbb::get_file_listing_for_title(std::string const& server_url, std::string const& title) {
   return download_and_split_on_newlines(server_url + "/3ds/" + title + "/file_list");
 }
 
@@ -119,7 +121,7 @@ url_components parse_url(string url) {
   return result;
 }*/
 
-tuple<Result, std::vector<u8>> http_get(string const& url) {
+tuple<Result, std::vector<u8>> hbb::http_get(string const& url) {
   //url_components details = parse_url(url);
 
   /*
@@ -180,7 +182,7 @@ tuple<Result, std::vector<u8>> http_get(string const& url) {
   //*/
 }
 
-Result download_to_file(std::string const& url, std::string const& absolute_path, std::function<void (int)> report) {
+Result hbb::download_to_file(std::string const& url, std::string const& absolute_path, std::function<void (int)> report) {
   Result ret;
   std::vector<u8> data;
   report(0);

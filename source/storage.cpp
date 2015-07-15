@@ -5,14 +5,16 @@
 
 #include <cstring>
 
+namespace hbb = homebrew_browser;
+
 FS_archive sdmc_archive;
 
-void initialize_storage() {
+void hbb::initialize_storage() {
   sdmc_archive = (FS_archive){ARCH_SDMC, (FS_path){PATH_EMPTY, 1, (u8*)""}};
   FSUSER_OpenArchive(NULL, &sdmc_archive);
 }
 
-u32 write_file(const char *path, const char *filename, void *data, u32 byte_count) {
+u32 hbb::write_file(const char *path, const char *filename, void *data, u32 byte_count) {
   FSUSER_CreateDirectory(NULL, sdmc_archive, FS_makePath(PATH_CHAR, path));
   Handle file_handle;
   char absolute_filename[256] = {};
@@ -26,14 +28,14 @@ u32 write_file(const char *path, const char *filename, void *data, u32 byte_coun
   return bytes_written;
 }
 
-u32 write_file(std::string const& absolute_path, void* data, u32 byte_count) {
+u32 hbb::write_file(std::string const& absolute_path, void* data, u32 byte_count) {
   size_t const position_of_last_slash = absolute_path.find_last_of('/');
   std::string const directory = absolute_path.substr(0, position_of_last_slash + 1);
   std::string const filename = absolute_path.substr(position_of_last_slash + 1);
   return write_file(directory.c_str(), filename.c_str(), data, byte_count);
 }
 
-std::tuple<Result, Handle> open_file_for_writing(std::string const& absolute_filename) {
+std::tuple<Result, Handle> hbb::open_file_for_writing(std::string const& absolute_filename) {
   Result error{0};
   Handle file_handle;
   error = FSUSER_OpenFile(NULL, &file_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_filename.c_str()), FS_OPEN_WRITE | FS_OPEN_CREATE, 0);
@@ -41,7 +43,7 @@ std::tuple<Result, Handle> open_file_for_writing(std::string const& absolute_fil
 }
 
 // Attempt to make this directory, including all of its parent directories
-Result mkdirp(std::string const& absolute_path) {
+Result hbb::mkdirp(std::string const& absolute_path) {
   //split this path into its filename and its "parent" path
   size_t const position_of_last_slash = absolute_path.find_last_of('/');
   std::string const directory = absolute_path.substr(0, position_of_last_slash);
@@ -58,7 +60,7 @@ Result mkdirp(std::string const& absolute_path) {
   return error;
 }
 
-bool file_exists(std::string const& absolute_filename) {
+bool hbb::file_exists(std::string const& absolute_filename) {
   Result error{0};
   Handle file_handle;
   error = FSUSER_OpenFile(NULL, &file_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_filename.c_str()), FS_OPEN_READ, 0);
@@ -68,7 +70,7 @@ bool file_exists(std::string const& absolute_filename) {
   return !error;
 }
 
-bool directory_exists(std::string const& absolute_path) {
+bool hbb::directory_exists(std::string const& absolute_path) {
   Result error{0};
   Handle directory_handle;
   error = FSUSER_OpenDirectory(NULL, &directory_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_path.c_str()));
@@ -80,7 +82,7 @@ bool directory_exists(std::string const& absolute_path) {
 
 // Given a filename, attempts to read the contents into a vector. Result is 0
 // on success.
-std::tuple<Result, std::vector<u8>> read_entire_file(std::string const& absolute_filename) {
+std::tuple<Result, std::vector<u8>> hbb::read_entire_file(std::string const& absolute_filename) {
   Result error{0};
   Handle file_handle;
   error = FSUSER_OpenFile(NULL, &file_handle, sdmc_archive, FS_makePath(PATH_CHAR, absolute_filename.c_str()), FS_OPEN_READ, 0);

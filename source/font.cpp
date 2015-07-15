@@ -9,18 +9,20 @@
 #include <sstream>
 #include <deque>
 
-//extern std::array<CharacterDescription, 128> ubuntu_condensed_desc;
-extern std::array<CharacterDescription, 128> ubuntu_light_10pt_desc;
-extern std::array<CharacterDescription, 128> ubuntu_condensed_14pt_desc;
-
-Font const title_font{ubuntu_condensed_14pt_desc, ubuntu_condensed_14pt_bin};
-Font const description_font{ubuntu_light_10pt_desc, ubuntu_light_10pt_bin};
-Font const author_font{ubuntu_light_10pt_desc, ubuntu_light_10pt_red_bin};
-
 using std::string;
 using std::vector;
 
-void _putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
+namespace hbb = homebrew_browser;
+
+//extern std::array<CharacterDescription, 128> ubuntu_condensed_desc;
+extern std::array<hbb::CharacterDescription, 128> ubuntu_light_10pt_desc;
+extern std::array<hbb::CharacterDescription, 128> ubuntu_condensed_14pt_desc;
+
+hbb::Font const hbb::title_font{ubuntu_condensed_14pt_desc, ubuntu_condensed_14pt_bin};
+hbb::Font const hbb::description_font{ubuntu_light_10pt_desc, ubuntu_light_10pt_bin};
+hbb::Font const hbb::author_font{ubuntu_light_10pt_desc, ubuntu_light_10pt_red_bin};
+
+void hbb::_putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const c) {
   CharacterDescription const& character{font.offsets[c]};
   draw_sprite_from_atlas(font.atlas, framebuffer,
@@ -29,7 +31,7 @@ void _putchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
       character.w, character.h);
 }
 
-void _putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
+void hbb::_putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font,
     char const* const s, u32 const n) {
   s32 horizontal_offset = 0;
   for (u32 character_offset = 0; character_offset < n; ++character_offset) {
@@ -42,7 +44,7 @@ void _putnchar(u8* const framebuffer, s32 const x, s32 const y, Font const& font
   }
 }
 
-u32 string_width(Font const& font, char const* const s, u32 const n) {
+u32 hbb::string_width(Font const& font, char const* const s, u32 const n) {
   u32 width = 0;
   for (u32 character_offset = 0; character_offset < n; character_offset++) {
     char const c = s[character_offset];
@@ -67,7 +69,7 @@ vector<string> split(string input) {
 
 // Given an input string, performs a word wrap operation, and returns a vector
 // of lines which will fit inside the specified area.
-vector<string> word_wrap(Font const& font, string input_string, u32 width, u32 max_lines) {
+vector<string> hbb::word_wrap(Font const& font, string input_string, u32 width, u32 max_lines) {
   vector<string> split_string = split(input_string);
   std::deque<string> words(begin(split_string), end(split_string));
   /*std::deque<string> words;
@@ -115,7 +117,7 @@ vector<string> word_wrap(Font const& font, string input_string, u32 width, u32 m
   return output;
 }
 
-void textbox(u8* fb, u32 x, u32 y, u32 width, u32 height, u32 spacing, Font const& font, string text) {
+void hbb::textbox(u8* fb, u32 x, u32 y, u32 width, u32 height, u32 spacing, Font const& font, string text) {
   u32 max_lines = height / spacing;
   vector<string> lines = word_wrap(font, text, width, max_lines);
   for (auto line : lines) {
@@ -124,7 +126,7 @@ void textbox(u8* fb, u32 x, u32 y, u32 width, u32 height, u32 spacing, Font cons
   }
 }
 
-void _putnchar_r(u8* const framebuffer, s32 const x, s32 const y,
+void hbb::_putnchar_r(u8* const framebuffer, s32 const x, s32 const y,
     Font const& font, char const* const s, u32 const n) {
   int adjusted_x = x - string_width(font, s, n);
   _putnchar(framebuffer, adjusted_x, y, font, s, n);

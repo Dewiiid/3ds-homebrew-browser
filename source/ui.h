@@ -7,6 +7,8 @@
 
 #include <3ds.h>
 
+namespace homebrew_browser {
+
 enum class SelectedCategory {
   kNone = 0,
   kGames,
@@ -108,5 +110,7 @@ extern std::array<UIElement, sizeof(ListingUIElementSize)> const g_listing_ui_el
 void draw_full_ui_from_state(ListingDrawState const& state);
 void redraw_full_ui();
 void draw_ui_element(u8* framebuffer, ListingUIElements const element);
+
+}  // namespace homebrew_browser
 
 #endif  // HOMEBREW_BROWSER_UI_H_

@@ -9,6 +9,7 @@
 
 #include "ui.h"
 
+namespace homebrew_browser {
 //std::string const kServer = "http://23.21.136.4:1337";
 //std::string const kServer = "http://homebrewbrowser.darknovagames.com";
 //std::string const kServer = "http://storage.googleapis.com/3ds-browser-apps";
@@ -68,5 +69,7 @@ void update_metadata_for_page(std::string const& server,
 FilteredListCursor get_title_list_cursor(FilteredList const& titles,
     FilteredList::size_type const& offset);
 void initialize_smdh_cache();
+
+}  // namespace homebrew_browser
 
 #endif  // HOMEBREW_BROWSER_BROWSER_H_
